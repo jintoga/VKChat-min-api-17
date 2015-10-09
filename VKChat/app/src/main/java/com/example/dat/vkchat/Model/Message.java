@@ -1,5 +1,7 @@
 package com.example.dat.vkchat.Model;
 
+import java.util.ArrayList;
+
 /**
  * Created by DAT on 8/27/2015.
  */
@@ -8,6 +10,8 @@ public class Message {
     private int id;
     private int user_id;
     private int from_id;
+    private ArrayList<Attachment> attachments;
+
 
     public Message() {
     }
@@ -49,5 +53,13 @@ public class Message {
 
     public void setFrom_id(int from_id) {
         this.from_id = from_id;
+    }
+
+    public ArrayList<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(ArrayList<Attachment> attachments) {
+        this.attachments = attachments;
     }
 }

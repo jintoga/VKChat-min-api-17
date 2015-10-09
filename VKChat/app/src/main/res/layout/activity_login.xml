@@ -32,14 +32,16 @@
                 android:name="com.example.dat.vkchat.Fragments.FragmentConversations"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                tools:layout="@layout/fragment_conversations" />
 
             <fragment
                 android:id="@+id/fragmentContactsInMain"
                 android:name="com.example.dat.vkchat.Fragments.FragmentContacts"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                tools:layout="@layout/fragment_contacts" />
 
             <!--<FrameLayout
                 android:id="@+id/frameContainer"

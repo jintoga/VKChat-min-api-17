@@ -69,4 +69,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         }
         return view;
     }
+
+    public ArrayList<Fragment> getmFragmentList() {
+        return mFragmentList;
+    }
 }

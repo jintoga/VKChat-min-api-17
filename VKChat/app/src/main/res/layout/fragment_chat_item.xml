@@ -64,7 +64,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="65"
-                    android:lines="1" />
+                    android:lines="1"
+                    android:textColor="@android:color/black" />
 
                 <ImageButton
                     android:id="@+id/imageButtonSend"

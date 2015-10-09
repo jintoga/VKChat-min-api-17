@@ -12,16 +12,31 @@
         android:layout_alignParentRight="true"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textViewMsg"
+        <LinearLayout
+            android:id="@+id/linearLayoutContentBody"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginRight="10dp"
             android:background="@drawable/bubright"
-            android:paddingBottom="30dp"
-            android:text="A"
-            android:textColor="#ff000000" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewMsg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="a asfasg asfas
+                fsa"
+                android:textColor="#ff000000" />
+
+            <ImageView
+                android:id="@+id/imageViewImgBody"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal" />
+
+        </LinearLayout>
+
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/imageViewAvatar"

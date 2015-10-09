@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.example.dat.vkchat.Adapters.CustomChatAdapter;
+import com.example.dat.vkchat.Model.Attachment;
 import com.example.dat.vkchat.Model.Contact;
 import com.example.dat.vkchat.Model.Message;
 import com.example.dat.vkchat.R;
@@ -150,7 +151,7 @@ public class FragmentChatItem extends Fragment {
         return count[0];
     }
 
-    private void refreshToDetectIncomingMsg() {
+    public void refreshToDetectIncomingMsg() {
        /* Intent intent = new Intent(getActivity(), MyService.class);
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", receiver);
@@ -234,6 +235,7 @@ public class FragmentChatItem extends Fragment {
     }
 
     private void responseUpdateChat() {
+        Log.d("Receiver", receiver.getName() + " id:" + receiver.getUser_id());
         VKRequest request = VKApi.messages().myGetMsgHistoryMethod(VKParameters.from(VKApiConst.COUNT, "10", VKApiConst.USER_ID, receiver.getUser_id()));
         request.secure = false;
         request.useSystemLanguage = false;
@@ -260,6 +262,46 @@ public class FragmentChatItem extends Fragment {
                         message.setUser_id(user_id);
                         message.setFrom_id(from_id);
                         message.setBody(body);
+                        try {
+                            JSONArray jsonArrayAttachments;
+                            if ((jsonArrayAttachments = joMsg.getJSONArray("attachments")) != null) {
+
+                                ArrayList<Attachment> attachments = new ArrayList<Attachment>();
+                                for (int j = 0; j < jsonArrayAttachments.length(); j++) {
+                                    JSONObject joAttachment = jsonArrayAttachments.getJSONObject(j);
+                                    Attachment attachment = new Attachment();
+                                    attachment.setType(joAttachment.getString("type"));
+                                    switch (attachment.getType()) {
+                                        /*case "audio":
+                                            JSONObject joAudio = joAttachment.getJSONObject("audio");
+                                            attachment.setMusic_url(joAudio.getString("url"));
+                                            break;*/
+                                        case "photo":
+                                            JSONObject joPhoto = joAttachment.getJSONObject("photo");
+                                            attachment.setImage_url(joPhoto.getString("photo_604"));
+                                            attachments.add(attachment);
+                                            break;
+                                        /*case "doc":
+                                            JSONObject joDoc = joAttachment.getJSONObject("doc");
+                                            attachment.setDoc_url(joDoc.getString("url"));
+                                            break;
+                                        case "video":
+                                            JSONObject joVideo = joAttachment.getJSONObject("video");
+                                            attachment.setVideo_img_url(joVideo.getString("photo_130"));
+                                            attachments.add(attachment);
+                                            break;*/
+                                    }
+                                    //TEMP SOLUTION
+                                    //attachments.add(attachment);
+                                }
+                                if (attachments.size() > 0)
+                                    message.setAttachments(attachments);
+                            }
+                        } catch (JSONException e) {
+                            Log.e("JSON ERROR", e.toString());
+                        }
+
+                        //Log.d("Msg", message.toString());
                         listMsg.add(message);
                     }
                     Collections.reverse(listMsg);
@@ -292,5 +334,11 @@ public class FragmentChatItem extends Fragment {
         });
     }
 
+    public boolean isRefreshRunner() {
+        return refreshRunner;
+    }
 
+    public void setRefreshRunner(boolean refreshRunner) {
+        this.refreshRunner = refreshRunner;
+    }
 }

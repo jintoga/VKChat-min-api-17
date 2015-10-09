@@ -2,7 +2,6 @@ package com.example.dat.vkchat;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -17,10 +16,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.dat.vkchat.Adapters.CustomDrawerAdapter;
 import com.example.dat.vkchat.Fragments.FragmentContacts;
 import com.example.dat.vkchat.Fragments.FragmentConversations;
 import com.example.dat.vkchat.Model.Contact;
@@ -83,15 +80,15 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         menuItemChat = (LinearLayout) findViewById(R.id.menuItemChat);
         menuItemContacts = (LinearLayout) findViewById(R.id.menuItemContacts);
         fragmentContacts = (FragmentContacts) this.getSupportFragmentManager().findFragmentById(R.id.fragmentContactsInMain);
-        fragmentTest = (FragmentConversations) this.getSupportFragmentManager().findFragmentById(R.id.fragmentTestInMain);
+        fragmentChat = (FragmentConversations) this.getSupportFragmentManager().findFragmentById(R.id.fragmentTestInMain);
 
         fragmentManager.beginTransaction().hide(fragmentContacts).commit();
-        fragmentManager.beginTransaction().hide(fragmentTest).commit();
+        fragmentManager.beginTransaction().hide(fragmentChat).commit();
     }
 
 
     private static FragmentContacts fragmentContacts = null;
-    private static FragmentConversations fragmentTest = null;
+    private static FragmentConversations fragmentChat = null;
     android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
 
 
@@ -122,6 +119,8 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         menuItemContacts.setOnClickListener(this);
 
         menuItemChat.setOnClickListener(this);
+
+
         /*navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
@@ -143,11 +142,11 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                             fragmentContacts.setContacts(getContacts());
                         }
                         fragmentManager.beginTransaction().show(fragmentContacts).commit();
-                        fragmentManager.beginTransaction().hide(fragmentTest).commit();
+                        fragmentManager.beginTransaction().hide(fragmentChat).commit();
                         break;
                     case R.id.Chat:
                         fragmentManager.beginTransaction().hide(fragmentContacts).commit();
-                        fragmentManager.beginTransaction().show(fragmentTest).commit();
+                        fragmentManager.beginTransaction().show(fragmentChat).commit();
                         break;
                     case R.id.Settings:
                         //fragment = new FragmentSettings();
@@ -164,10 +163,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     }
 
     public void addFriendToConversations(Contact receiver) {
-        fragmentTest.addFriendToChat(receiver);
+        fragmentChat.addFriendToChat(receiver);
         toolbar.setTitle("Conversations");
         fragmentManager.beginTransaction().hide(fragmentContacts).commit();
-        fragmentManager.beginTransaction().show(fragmentTest).commit();
+        fragmentManager.beginTransaction().show(fragmentChat).commit();
     }
 
     private void showLogin() {
@@ -188,17 +187,25 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.menuItemHome:
+                fragmentManager.beginTransaction().hide(fragmentContacts).commit();
+                fragmentManager.beginTransaction().hide(fragmentChat).commit();
+                toolbar.setTitle("Home");
+                fragmentChat.getFragmentChat().stopRefreshInAllFrgaments();
                 break;
             case R.id.menuItemContacts:
                 if (fragmentContacts.getContacts() == null) {
                     fragmentContacts.setContacts(getContacts());
                 }
                 fragmentManager.beginTransaction().show(fragmentContacts).commit();
-                fragmentManager.beginTransaction().hide(fragmentTest).commit();
+                fragmentManager.beginTransaction().hide(fragmentChat).commit();
+                toolbar.setTitle("Contacts");
+                fragmentChat.getFragmentChat().stopRefreshInAllFrgaments();
                 break;
             case R.id.menuItemChat:
                 fragmentManager.beginTransaction().hide(fragmentContacts).commit();
-                fragmentManager.beginTransaction().show(fragmentTest).commit();
+                fragmentManager.beginTransaction().show(fragmentChat).commit();
+                toolbar.setTitle("Conversations");
+                fragmentChat.getFragmentChat().startRefreshInAllFrgaments();
                 break;
         }
         drawerLayout.closeDrawers();
@@ -297,12 +304,16 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             requestContacts();
             requestMessagesDialogs();
             showLogout();
+            if (fragmentChat.isVisible()) {
+                fragmentChat.getFragmentChat().startRefreshInAllFrgaments();
+            }
         } else {
             showLogin();
             clearUserOldData();
         }
 
     }
+
 
     private void setUserData() {
 // User passed Authorization
@@ -502,4 +513,17 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         }
     }*/
 
+    @Override
+    public void onBackPressed() {
+        if (!fragmentContacts.isHidden()) {
+            fragmentManager.beginTransaction().hide(fragmentContacts).commit();
+            fragmentManager.beginTransaction().hide(fragmentChat).commit();
+            toolbar.setTitle("Home");
+        } else {
+            fragmentChat.getFragmentChat().stopRefreshInAllFrgaments();
+            fragmentManager.beginTransaction().show(fragmentContacts).commit();
+            fragmentManager.beginTransaction().hide(fragmentChat).commit();
+            toolbar.setTitle("Contacts");
+        }
+    }
 }

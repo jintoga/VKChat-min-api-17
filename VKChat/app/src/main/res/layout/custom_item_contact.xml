@@ -73,7 +73,6 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_margin="@dimen/activity_horizontal_margin"
                 android:layout_weight="0.3"
                 android:orientation="vertical">
 
@@ -83,6 +82,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:padding="5dp"
                     android:src="@drawable/ic_chat_black_18dp"
                     app:backgroundTint="@color/cardview_light_background"
                     app:fabSize="mini"></android.support.design.widget.FloatingActionButton>

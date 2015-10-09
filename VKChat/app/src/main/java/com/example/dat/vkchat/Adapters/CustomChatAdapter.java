@@ -12,7 +12,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.dat.vkchat.LoginActivity;
+import com.example.dat.vkchat.Model.Attachment;
 import com.example.dat.vkchat.Model.Contact;
 import com.example.dat.vkchat.Model.Message;
 import com.example.dat.vkchat.R;
@@ -91,7 +93,14 @@ public class CustomChatAdapter extends BaseAdapter {
             if (((LoginActivity) context).getCurrentUser().getUser_id() == getItem(position).getFrom_id()) {
                 Picasso.with(context).load(((LoginActivity) context).getCurrentUser().getAvatar_url()).into(viewHolder.avatar);
                 viewHolder.msg_body.setText(getItem(position).getBody());
-                viewHolder.msg_body.setBackgroundResource(R.drawable.bubright);
+                ArrayList<Attachment> attachments = getItem(position).getAttachments();
+                if (getItem(position).getAttachments() != null) {
+                    for (Attachment attachment : getItem(position).getAttachments()) {
+                        if (attachment.getType().equals("photo"))
+                            Glide.with(context).load(attachment.getImage_url()).into(viewHolder.img_body);
+                    }
+                }
+                viewHolder.contentBody.setBackgroundResource(R.drawable.bubright);
 
                 RelativeLayout.LayoutParams layoutParamsContainer = (RelativeLayout.LayoutParams) viewHolder.container.getLayoutParams();
                 layoutParamsContainer.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
@@ -101,14 +110,21 @@ public class CustomChatAdapter extends BaseAdapter {
                 layoutParamsAvatar.gravity = Gravity.RIGHT;
                 viewHolder.avatar.setLayoutParams(layoutParamsAvatar);
 
-                LinearLayout.LayoutParams layoutParamsMsg = (LinearLayout.LayoutParams) viewHolder.msg_body.getLayoutParams();
+                LinearLayout.LayoutParams layoutParamsMsg = (LinearLayout.LayoutParams) viewHolder.contentBody.getLayoutParams();
                 layoutParamsMsg.gravity = Gravity.RIGHT;
                 layoutParamsMsg.rightMargin = 20;
-                viewHolder.msg_body.setLayoutParams(layoutParamsMsg);
+                viewHolder.contentBody.setLayoutParams(layoutParamsMsg);
             } else {
                 Picasso.with(context).load(receiver.getAvatar_url()).into(viewHolder.avatar);
                 viewHolder.msg_body.setText(getItem(position).getBody());
-                viewHolder.msg_body.setBackgroundResource(R.drawable.bubleft);
+                ArrayList<Attachment> attachments = getItem(position).getAttachments();
+                if (getItem(position).getAttachments() != null) {
+                    for (Attachment attachment : getItem(position).getAttachments()) {
+                        if (attachment.getType().equals("photo"))
+                            Glide.with(context).load(attachment.getImage_url()).into(viewHolder.img_body);
+                    }
+                }
+                viewHolder.contentBody.setBackgroundResource(R.drawable.bubleft);
 
                 RelativeLayout.LayoutParams layoutParamsContainer = (RelativeLayout.LayoutParams) viewHolder.container.getLayoutParams();
                 layoutParamsContainer.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -118,10 +134,10 @@ public class CustomChatAdapter extends BaseAdapter {
                 layoutParamsAvatar.gravity = Gravity.LEFT;
                 viewHolder.avatar.setLayoutParams(layoutParamsAvatar);
 
-                LinearLayout.LayoutParams layoutParamsMsg = (LinearLayout.LayoutParams) viewHolder.msg_body.getLayoutParams();
+                LinearLayout.LayoutParams layoutParamsMsg = (LinearLayout.LayoutParams) viewHolder.contentBody.getLayoutParams();
                 layoutParamsMsg.gravity = Gravity.LEFT;
                 layoutParamsMsg.leftMargin = 20;
-                viewHolder.msg_body.setLayoutParams(layoutParamsMsg);
+                viewHolder.contentBody.setLayoutParams(layoutParamsMsg);
             }
         }
         return convertView;
@@ -130,15 +146,19 @@ public class CustomChatAdapter extends BaseAdapter {
     private ViewHolder createViewHolder(View view) {
         ViewHolder holder = new ViewHolder();
         holder.msg_body = (TextView) view.findViewById(R.id.textViewMsg);
+        holder.img_body = (ImageView) view.findViewById(R.id.imageViewImgBody);
         holder.avatar = (CircleImageView) view.findViewById(R.id.imageViewAvatar);
         holder.container = (LinearLayout) view.findViewById(R.id.linearLayoutContainer);
+        holder.contentBody = (LinearLayout) view.findViewById(R.id.linearLayoutContentBody);
         return holder;
     }
 
     private static class ViewHolder {
         CircleImageView avatar;
         TextView msg_body;
+        ImageView img_body;
         LinearLayout container;
+        LinearLayout contentBody;
     }
 
 

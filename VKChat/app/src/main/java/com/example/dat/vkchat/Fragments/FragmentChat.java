@@ -112,6 +112,7 @@ public class FragmentChat extends Fragment {
         setupTabLayout();
     }
 
+
     public ViewPagerAdapter getAdapter() {
         if (adapter == null)
             return new ViewPagerAdapter(getFragmentManager(), getActivity());
@@ -120,4 +121,16 @@ public class FragmentChat extends Fragment {
     }
 
 
+    public void stopRefreshInAllFrgaments() {
+        for (Fragment fragment : adapter.getmFragmentList()) {
+            ((FragmentChatItem) fragment).setRefreshRunner(false);
+        }
+    }
+
+    public void startRefreshInAllFrgaments() {
+        for (Fragment fragment : adapter.getmFragmentList()) {
+            ((FragmentChatItem) fragment).setRefreshRunner(true);
+            ((FragmentChatItem) fragment).refreshToDetectIncomingMsg();
+        }
+    }
 }

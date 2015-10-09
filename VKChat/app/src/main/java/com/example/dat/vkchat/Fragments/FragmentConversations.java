@@ -31,4 +31,8 @@ public class FragmentConversations extends Fragment {
     private void getIDs(View view) {
         fragmentChat = (FragmentChat) getChildFragmentManager().findFragmentById(R.id.fragmentChatInsideConversations);
     }
+
+    public FragmentChat getFragmentChat() {
+        return fragmentChat;
+    }
 }
