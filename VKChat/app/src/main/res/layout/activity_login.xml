@@ -77,25 +77,39 @@
             android:layout_height="190dp"
             android:background="@drawable/background_header2">
 
-            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/imageViewProfile"
-                android:layout_width="76dp"
-                android:layout_height="76dp"
+            <FrameLayout
+                android:id="@+id/frameLayoutAvatarContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="24dp"
-                android:layout_marginStart="24dp"
-                android:src="@drawable/boy"
-                app:border_color="#FF000000" />
+                android:layout_marginStart="24dp">
+
+                <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/imageViewProfile"
+                    android:layout_width="76dp"
+                    android:layout_height="76dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/vk_avatar"
+                    app:border_color="#FF000000" />
+
+                <ProgressBar
+                    android:id="@+id/progressBarAvatarLoading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center" />
+
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/textView_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/textView_email"
-                android:layout_alignLeft="@+id/imageViewProfile"
-                android:layout_alignStart="@+id/imageViewProfile"
+                android:layout_alignLeft="@+id/frameLayoutAvatarContainer"
+                android:layout_alignStart="@+id/frameLayoutAvatarContainer"
                 android:gravity="left"
                 android:paddingBottom="4dp"
                 android:text="User"

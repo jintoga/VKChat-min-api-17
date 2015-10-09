@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ import com.example.dat.vkchat.Model.Attachment;
 import com.example.dat.vkchat.Model.Contact;
 import com.example.dat.vkchat.Model.Message;
 import com.example.dat.vkchat.R;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
@@ -74,7 +76,7 @@ public class CustomChatAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup viewGroup) {
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
         Message msg = getItem(position);
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -94,11 +96,29 @@ public class CustomChatAdapter extends BaseAdapter {
                 Picasso.with(context).load(((LoginActivity) context).getCurrentUser().getAvatar_url()).into(viewHolder.avatar);
                 viewHolder.msg_body.setText(getItem(position).getBody());
                 ArrayList<Attachment> attachments = getItem(position).getAttachments();
-                if (getItem(position).getAttachments() != null) {
-                    for (Attachment attachment : getItem(position).getAttachments()) {
-                        if (attachment.getType().equals("photo"))
-                            Glide.with(context).load(attachment.getImage_url()).into(viewHolder.img_body);
+
+                if (attachments != null) {
+                    viewHolder.progressBarLoadImage.setVisibility(View.VISIBLE);
+                    for (Attachment attachment : attachments) {
+                        if (attachment.getType().equals("photo")) {
+                            Picasso.with(context).load(attachment.getImage_url()).into(viewHolder.img_body, new Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    viewHolder.progressBarLoadImage.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onError() {
+                                    viewHolder.progressBarLoadImage.setVisibility(View.GONE);
+                                    viewHolder.img_body.setImageDrawable(null);
+                                }
+                            });
+
+                        }
                     }
+                } else {
+                    viewHolder.img_body.setImageDrawable(null);     //THIS IS SUPER IMPORTANT*****
+                    viewHolder.progressBarLoadImage.setVisibility(View.GONE);
                 }
                 viewHolder.contentBody.setBackgroundResource(R.drawable.bubright);
 
@@ -118,11 +138,29 @@ public class CustomChatAdapter extends BaseAdapter {
                 Picasso.with(context).load(receiver.getAvatar_url()).into(viewHolder.avatar);
                 viewHolder.msg_body.setText(getItem(position).getBody());
                 ArrayList<Attachment> attachments = getItem(position).getAttachments();
-                if (getItem(position).getAttachments() != null) {
-                    for (Attachment attachment : getItem(position).getAttachments()) {
-                        if (attachment.getType().equals("photo"))
-                            Glide.with(context).load(attachment.getImage_url()).into(viewHolder.img_body);
+
+                if (attachments != null) {
+                    viewHolder.progressBarLoadImage.setVisibility(View.VISIBLE);
+                    for (Attachment attachment : attachments) {
+                        if (attachment.getType().equals("photo")) {
+                            Picasso.with(context).load(attachment.getImage_url()).into(viewHolder.img_body, new Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    viewHolder.progressBarLoadImage.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onError() {
+                                    viewHolder.progressBarLoadImage.setVisibility(View.GONE);
+                                    viewHolder.img_body.setImageDrawable(null);
+                                }
+                            });
+
+                        }
                     }
+                } else {
+                    viewHolder.img_body.setImageDrawable(null);     //THIS IS SUPER IMPORTANT*****
+                    viewHolder.progressBarLoadImage.setVisibility(View.GONE);
                 }
                 viewHolder.contentBody.setBackgroundResource(R.drawable.bubleft);
 
@@ -150,6 +188,7 @@ public class CustomChatAdapter extends BaseAdapter {
         holder.avatar = (CircleImageView) view.findViewById(R.id.imageViewAvatar);
         holder.container = (LinearLayout) view.findViewById(R.id.linearLayoutContainer);
         holder.contentBody = (LinearLayout) view.findViewById(R.id.linearLayoutContentBody);
+        holder.progressBarLoadImage = (ProgressBar) view.findViewById(R.id.progressBarLoadImage);
         return holder;
     }
 
@@ -159,6 +198,7 @@ public class CustomChatAdapter extends BaseAdapter {
         ImageView img_body;
         LinearLayout container;
         LinearLayout contentBody;
+        ProgressBar progressBarLoadImage;
     }
 
 

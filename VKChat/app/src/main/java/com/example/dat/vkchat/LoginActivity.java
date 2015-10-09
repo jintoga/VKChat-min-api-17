@@ -16,11 +16,13 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.dat.vkchat.Fragments.FragmentContacts;
 import com.example.dat.vkchat.Fragments.FragmentConversations;
 import com.example.dat.vkchat.Model.Contact;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
@@ -53,6 +55,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     };
 
     private ImageView imageViewAvatar;
+    private ProgressBar progressBarAvatarLoading;
     private TextView textViewName;
     private TextView textViewEmail;
     private Toolbar toolbar;
@@ -76,6 +79,8 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         // Initializing Drawer Layout and ActionBarToggle
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         imageViewAvatar = (ImageView) findViewById(R.id.imageViewProfile);
+        progressBarAvatarLoading = (ProgressBar) findViewById(R.id.progressBarAvatarLoading);
+        progressBarAvatarLoading.setVisibility(View.VISIBLE);
         textViewName = (TextView) findViewById(R.id.textView_username);
         menuItemChat = (LinearLayout) findViewById(R.id.menuItemChat);
         menuItemContacts = (LinearLayout) findViewById(R.id.menuItemContacts);
@@ -121,45 +126,6 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         menuItemChat.setOnClickListener(this);
 
 
-        /*navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem menuItem) {
-                if (menuItem.isChecked()) {
-                    menuItem.setChecked(false);
-                } else {
-                    menuItem.setChecked(true);
-                }
-                drawerLayout.closeDrawers();
-                toolbar.setTitle(menuItem.getTitle());
-                switch (menuItem.getItemId()) {
-                    case R.id.Home:
-                        //fragment = new FragmentHome();
-                        break;
-                    case R.id.Contacts:
-                        *//*fragment = new FragmentContacts();*//*
-
-                        if (fragmentContacts.getContacts() == null) {
-                            fragmentContacts.setContacts(getContacts());
-                        }
-                        fragmentManager.beginTransaction().show(fragmentContacts).commit();
-                        fragmentManager.beginTransaction().hide(fragmentChat).commit();
-                        break;
-                    case R.id.Chat:
-                        fragmentManager.beginTransaction().hide(fragmentContacts).commit();
-                        fragmentManager.beginTransaction().show(fragmentChat).commit();
-                        break;
-                    case R.id.Settings:
-                        //fragment = new FragmentSettings();
-                        break;
-                    default:
-                        break;
-                }
-                //fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                //fragmentTransaction.replace(R.id.frameContainer, fragment);
-                //fragmentTransaction.commit();
-                return true;
-            }
-        });*/
     }
 
     public void addFriendToConversations(Contact receiver) {
@@ -341,9 +307,21 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                     if (jsonObject.getString("photo_200") != null) {
                         photo_url = jsonObject.getString("photo_200");
                         Log.d("photo_url", photo_url);
-                        Picasso.with(getApplicationContext()).load(photo_url).into(imageViewAvatar);
+                        Picasso.with(getApplicationContext()).load(photo_url).into(imageViewAvatar, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                progressBarAvatarLoading.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError() {
+                                progressBarAvatarLoading.setVisibility(View.GONE);
+                                imageViewAvatar.setImageResource(R.drawable.vk_avatar);
+                            }
+                        });
                     } else {
-                        Picasso.with(getApplicationContext()).load(R.drawable.vk_avatar).into(imageViewAvatar);
+                        imageViewAvatar.setImageResource(R.drawable.vk_avatar);
+                        progressBarAvatarLoading.setVisibility(View.GONE);
                     }
                     textViewName.setText(first_name + " " + last_name);
                     Contact curUser = new Contact();

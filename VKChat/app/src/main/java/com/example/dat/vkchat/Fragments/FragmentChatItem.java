@@ -73,6 +73,7 @@ public class FragmentChatItem extends Fragment {
 
         buttonSend = (ImageButton) view.findViewById(R.id.imageButtonSend);
         editTextMsg = (EditText) view.findViewById(R.id.editTextMsg);
+        editTextMsg.requestFocus();
         listViewChat = (ListView) view.findViewById(R.id.listViewChat);
 
     }
@@ -100,7 +101,7 @@ public class FragmentChatItem extends Fragment {
                 String msg = cbuf.toString();
 
                 requestSendMsg(msg, String.valueOf(receiver.getUser_id()));
-
+                editTextMsg.setText("");
             }
         });
     }
@@ -152,11 +153,6 @@ public class FragmentChatItem extends Fragment {
     }
 
     public void refreshToDetectIncomingMsg() {
-       /* Intent intent = new Intent(getActivity(), MyService.class);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("data", receiver);
-        intent.putExtras(bundle);
-        getActivity().startService(intent);*/
         new AsyncTask<Void, Void, Void>() {
 
             @Override
@@ -298,7 +294,7 @@ public class FragmentChatItem extends Fragment {
                                     message.setAttachments(attachments);
                             }
                         } catch (JSONException e) {
-                            Log.e("JSON ERROR", e.toString());
+                            Log.i("JSON ERROR", "No value for attachments");
                         }
 
                         //Log.d("Msg", message.toString());
