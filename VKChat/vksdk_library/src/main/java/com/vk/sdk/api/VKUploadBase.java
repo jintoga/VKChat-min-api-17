@@ -21,6 +21,8 @@
 
 package com.vk.sdk.api;
 
+import android.util.Log;
+
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.httpClient.VKAbstractOperation;
 import com.vk.sdk.api.httpClient.VKHttpClient;
@@ -118,6 +120,8 @@ public abstract class VKUploadBase extends VKRequest {
             public void onComplete(VKResponse response) {
                 try {
                     String uploadUrl = response.json.getJSONObject("response").getString("upload_url");
+                    String user_id = response.json.getJSONObject("response").getString("user_id");
+                    Log.d("user_id", user_id);
                     VKJsonOperation postFileRequest = getUploadOperation(uploadUrl);
                     postFileRequest.setHttpOperationListener(new VKJSONOperationCompleteListener() {
                         @Override

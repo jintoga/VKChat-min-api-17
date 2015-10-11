@@ -82,6 +82,8 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         progressBarAvatarLoading = (ProgressBar) findViewById(R.id.progressBarAvatarLoading);
         progressBarAvatarLoading.setVisibility(View.VISIBLE);
         textViewName = (TextView) findViewById(R.id.textView_username);
+        menuItemHome = (LinearLayout) findViewById(R.id.menuItemHome);
+        menuItemHome.setBackgroundColor(getResources().getColor(R.color.ripple));
         menuItemChat = (LinearLayout) findViewById(R.id.menuItemChat);
         menuItemContacts = (LinearLayout) findViewById(R.id.menuItemContacts);
         fragmentContacts = (FragmentContacts) this.getSupportFragmentManager().findFragmentById(R.id.fragmentContactsInMain);
@@ -121,6 +123,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         //calling sync state is necessay or else your hamburger icon wont show up
         actionBarDrawerToggle.syncState();
 
+        menuItemHome.setOnClickListener(this);
         menuItemContacts.setOnClickListener(this);
 
         menuItemChat.setOnClickListener(this);
@@ -129,8 +132,14 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     }
 
     public void addFriendToConversations(Contact receiver) {
+
         fragmentChat.addFriendToChat(receiver);
         toolbar.setTitle("Conversations");
+
+        menuItemHome.setBackgroundColor(getResources().getColor(android.R.color.white));
+        menuItemContacts.setBackgroundColor(getResources().getColor(android.R.color.white));
+        menuItemChat.setBackgroundColor(getResources().getColor(R.color.ripple));
+
         fragmentManager.beginTransaction().hide(fragmentContacts).commit();
         fragmentManager.beginTransaction().show(fragmentChat).commit();
     }
@@ -151,12 +160,16 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
     @Override
     public void onClick(View v) {
+        menuItemHome.setBackgroundColor(getResources().getColor(android.R.color.white));
+        menuItemContacts.setBackgroundColor(getResources().getColor(android.R.color.white));
+        menuItemChat.setBackgroundColor(getResources().getColor(android.R.color.white));
         switch (v.getId()) {
             case R.id.menuItemHome:
                 fragmentManager.beginTransaction().hide(fragmentContacts).commit();
                 fragmentManager.beginTransaction().hide(fragmentChat).commit();
                 toolbar.setTitle("Home");
                 fragmentChat.getFragmentChat().stopRefreshInAllFrgaments();
+                menuItemHome.setBackgroundColor(getResources().getColor(R.color.ripple));
                 break;
             case R.id.menuItemContacts:
                 if (fragmentContacts.getContacts() == null) {
@@ -166,12 +179,14 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                 fragmentManager.beginTransaction().hide(fragmentChat).commit();
                 toolbar.setTitle("Contacts");
                 fragmentChat.getFragmentChat().stopRefreshInAllFrgaments();
+                menuItemContacts.setBackgroundColor(getResources().getColor(R.color.ripple));
                 break;
             case R.id.menuItemChat:
                 fragmentManager.beginTransaction().hide(fragmentContacts).commit();
                 fragmentManager.beginTransaction().show(fragmentChat).commit();
                 toolbar.setTitle("Conversations");
                 fragmentChat.getFragmentChat().startRefreshInAllFrgaments();
+                menuItemChat.setBackgroundColor(getResources().getColor(R.color.ripple));
                 break;
         }
         drawerLayout.closeDrawers();
@@ -229,15 +244,12 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         textViewName.setText("User");
         if (contacts != null)
             contacts.clear();
-        /*FragmentContacts fragmentContacts = (FragmentContacts) this.getSupportFragmentManager().findFragmentById(R.id.frameContainer);
-        if (fragmentContacts != null) {
-            Log.d("FR", fragmentContacts.toString());
-            fragmentContacts.clearContactsList();
-        }*/
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {
@@ -493,15 +505,23 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
     @Override
     public void onBackPressed() {
+
+        menuItemHome.setBackgroundColor(getResources().getColor(android.R.color.white));
+        menuItemContacts.setBackgroundColor(getResources().getColor(android.R.color.white));
+        menuItemChat.setBackgroundColor(getResources().getColor(android.R.color.white));
         if (!fragmentContacts.isHidden()) {
             fragmentManager.beginTransaction().hide(fragmentContacts).commit();
             fragmentManager.beginTransaction().hide(fragmentChat).commit();
+            menuItemHome.setBackgroundColor(getResources().getColor(R.color.ripple));
             toolbar.setTitle("Home");
         } else {
             fragmentChat.getFragmentChat().stopRefreshInAllFrgaments();
             fragmentManager.beginTransaction().show(fragmentContacts).commit();
             fragmentManager.beginTransaction().hide(fragmentChat).commit();
+            menuItemContacts.setBackgroundColor(getResources().getColor(R.color.ripple));
             toolbar.setTitle("Contacts");
         }
+        drawerLayout.closeDrawers();
     }
+
 }

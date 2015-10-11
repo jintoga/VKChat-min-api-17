@@ -4,25 +4,27 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.example.dat.vkchat.Adapters.CustomContactsAdapter;
-import com.example.dat.vkchat.LoginActivity;
 import com.example.dat.vkchat.Model.Contact;
 import com.example.dat.vkchat.R;
 
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
 
 public class FragmentContacts extends Fragment {
 
     private static ArrayList<Contact> contacts;
     private RecyclerView recyclerViewContacts;
-    private CustomContactsAdapter mAdapter;
+    private CustomContactsAdapter customContactsAdapter;
+
+    private EditText editTextSearchContact;
+    private boolean searchOn = false;
 
 
     @Override
@@ -40,16 +42,34 @@ public class FragmentContacts extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerViewContacts.setLayoutManager(layoutManager);
 
+        editTextSearchContact = (EditText) view.findViewById(R.id.editTextSearchContact);
+
     }
 
     private void setEvents() {
+        editTextSearchContact.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence constraint, int start, int before, int count) {
+                searchOn = true;
+                FragmentContacts.this.customContactsAdapter.getFilter().filter(constraint);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     public void clearContactsList() {
         contacts.clear();
-        if (mAdapter != null)
-            mAdapter.notifyDataSetChanged();
+        if (customContactsAdapter != null)
+            customContactsAdapter.notifyDataSetChanged();
     }
 
     public ArrayList<Contact> getContacts() {
@@ -58,8 +78,16 @@ public class FragmentContacts extends Fragment {
 
     public void setContacts(ArrayList<Contact> contacts) {
         this.contacts = contacts;
-        mAdapter = new CustomContactsAdapter(getActivity(), contacts);
-        recyclerViewContacts.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
+        customContactsAdapter = new CustomContactsAdapter(getActivity(), contacts, this);
+        recyclerViewContacts.setAdapter(customContactsAdapter);
+        customContactsAdapter.notifyDataSetChanged();
+    }
+
+    public boolean isSearchOn() {
+        return searchOn;
+    }
+
+    public void setSearchOn(boolean searchOn) {
+        this.searchOn = searchOn;
     }
 }

@@ -26,10 +26,10 @@ public class VKUploadMessagesPhotoRequest extends VKUploadPhotoBase {
     }
 
     @Override
-    protected VKRequest getServerRequest() {
+    protected VKRequest getServerRequest()
+    {
         return VKApi.photos().getMessagesUploadServer();
     }
-
     @Override
     protected VKRequest getSaveRequest(JSONObject response) {
         VKRequest saveRequest;

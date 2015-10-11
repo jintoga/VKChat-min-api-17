@@ -31,32 +31,43 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="20"
-                    android:orientation="vertical"
-                    android:paddingTop="10dp">
+                    android:orientation="vertical">
 
                     <ImageButton
                         android:id="@+id/imageButtonAttach"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_gravity="center_horizontal|top"
+                        android:layout_marginTop="5dp"
                         android:background="@null"
                         android:src="@drawable/attach" />
 
                     <TextView
-                        android:id="@+id/textViewFile"
+                        android:id="@+id/textViewFileName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:lines="1"
+                        android:layout_marginTop="5dp"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:lines="2"
                         android:text="No Attachment"
                         android:textColor="@android:color/black"
                         android:textSize="10dp" />
-                </LinearLayout>
+
+                    <ProgressBar
+                        android:id="@+id/progressBarUploadAttchment"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="5dp" />
+                </FrameLayout>
 
                 <EditText
                     android:id="@+id/editTextMsg"

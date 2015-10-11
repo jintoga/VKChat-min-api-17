@@ -1,7 +1,15 @@
 package com.example.dat.vkchat.Fragments;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,8 +19,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.dat.vkchat.Adapters.CustomChatAdapter;
+import com.example.dat.vkchat.LoginActivity;
 import com.example.dat.vkchat.Model.Attachment;
 import com.example.dat.vkchat.Model.Contact;
 import com.example.dat.vkchat.Model.Message;
@@ -23,11 +33,21 @@ import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
+import com.vk.sdk.api.httpClient.VKImageOperation;
+import com.vk.sdk.api.model.VKApiLink;
+import com.vk.sdk.api.model.VKApiPhoto;
+import com.vk.sdk.api.model.VKAttachments;
+import com.vk.sdk.api.model.VKPhotoArray;
+import com.vk.sdk.api.photo.VKImageParameters;
+import com.vk.sdk.api.photo.VKUploadImage;
+import com.vk.sdk.api.photo.VKUploadWallPhotoRequest;
+import com.vk.sdk.dialogs.VKShareDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -48,9 +68,15 @@ public class FragmentChatItem extends Fragment {
     private ListView listViewChat;
     private Contact receiver = null;
     private ProgressBar progressBarLoadChat;
-
+    private ImageButton imageButtonAttach;
+    private TextView textViewFileName;
+    private ProgressBar progressBarUploadAttachment;
     private boolean refreshRunner = false;
     private int msg_counter;
+
+    private String attachment_url_604 = "";
+    private String attachment_id = "";
+    private String attachment_owner_id = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,6 +102,10 @@ public class FragmentChatItem extends Fragment {
         editTextMsg.requestFocus();
         listViewChat = (ListView) view.findViewById(R.id.listViewChat);
 
+        imageButtonAttach = (ImageButton) view.findViewById(R.id.imageButtonAttach);
+        textViewFileName = (TextView) view.findViewById(R.id.textViewFileName);
+        progressBarUploadAttachment = (ProgressBar) view.findViewById(R.id.progressBarUploadAttchment);
+        progressBarUploadAttachment.setVisibility(View.INVISIBLE);
     }
 
     String user_id = "146312781";
@@ -99,12 +129,109 @@ public class FragmentChatItem extends Fragment {
                     e.printStackTrace();
                 }
                 String msg = cbuf.toString();
-
                 requestSendMsg(msg, String.valueOf(receiver.getUser_id()));
                 editTextMsg.setText("");
+                textViewFileName.setText("No Attachment");
+                attachment = "";
+                attachment_url_604 = "";
+            }
+        });
+
+        imageButtonAttach.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                attachImage();
             }
         });
     }
+
+
+    private static int RESULT_LOAD_IMAGE = 502;
+
+    private void attachImage() {
+
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        getParentFragment().startActivityForResult(intent, RESULT_LOAD_IMAGE);
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == Activity.RESULT_OK && data != null) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+            Cursor cursor = getActivity().getContentResolver().query(selectedImage,
+                    filePathColumn, null, null, null);
+
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            //String fileName = picturePath.substring(picturePath.lastIndexOf("/") + 1);
+            cursor.close();
+
+            Log.d("picturePath:", picturePath);
+
+            File file = new File(picturePath);
+            textViewFileName.setText(file.getName());
+            uploadImage(file);
+        }
+    }
+
+
+    private void uploadImage(File file) {
+
+        VKRequest request = VKApi.uploadMessagesPhotoRequest(file);
+        request.secure = false;
+        request.useSystemLanguage = false;
+        request.executeWithListener(new VKRequest.VKRequestListener() {
+            @Override
+            public void onComplete(VKResponse response) {
+                super.onComplete(response);
+                Log.d("Response", response.toString());
+                parseJson(response.json);
+                progressBarUploadAttachment.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+                super.attemptFailed(request, attemptNumber, totalAttempts);
+            }
+
+            @Override
+            public void onError(VKError error) {
+                super.onError(error);
+            }
+
+            @Override
+            public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded, long bytesTotal) {
+                super.onProgress(progressType, bytesLoaded, bytesTotal);
+                progressBarUploadAttachment.setVisibility(View.VISIBLE);
+            }
+        });
+
+    }
+
+    private void parseJson(JSONObject json) {
+        try {
+            JSONArray jsonArray = json.getJSONArray("response");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject joPhoto = jsonArray.getJSONObject(i);
+                attachment_url_604 = joPhoto.getString("photo_604");
+                attachment_id = joPhoto.getString("id");
+                attachment_owner_id = joPhoto.getString("owner_id");
+                Log.d("attachment_url_604", attachment_url_604);
+                Log.d("attachment_id", attachment_id);
+                Log.d("attachment_owner_id", attachment_owner_id);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private int getCurrentMsgNumber() {
         final int[] count = {0};
@@ -180,10 +307,17 @@ public class FragmentChatItem extends Fragment {
 
     }
 
+    private String attachment = "";
+
     private void requestSendMsg(final String msg, final String user_id) {
 
 
         VKRequest request = VKApi.messages().mySendingMsgMethod(VKParameters.from(VKApiConst.MESSAGE, msg, VKApiConst.USER_ID, user_id));
+        if (!attachment_url_604.equals("")) {
+            attachment = "photo" + attachment_owner_id + "_" + attachment_id;
+            request.addExtraParameters(VKParameters.from(VKApiConst.ATTACHMENT, attachment));
+        }
+
         request.secure = false;
         request.useSystemLanguage = false;
         request.executeWithListener(new VKRequest.VKRequestListener() {
@@ -294,7 +428,7 @@ public class FragmentChatItem extends Fragment {
                                     message.setAttachments(attachments);
                             }
                         } catch (JSONException e) {
-                            Log.i("JSON ERROR", "No value for attachments");
+                            //Log.i("JSON ERROR", "No value for attachments");
                         }
 
                         //Log.d("Msg", message.toString());

@@ -87,6 +87,7 @@ public class VKApiConst {
     public static final String FROM_GROUP = "from_group";
     public static final String MESSAGE = "message";
     public static final String ATTACHMENTS = "attachments";
+    public static final String ATTACHMENT = "attachment";
     public static final String SERVICES = "services";
     public static final String SIGNED = "signed";
     public static final String PUBLISH_DATE = "publish_date";

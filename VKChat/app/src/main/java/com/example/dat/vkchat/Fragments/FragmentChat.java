@@ -1,5 +1,6 @@
 package com.example.dat.vkchat.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,7 @@ import com.example.dat.vkchat.Model.Contact;
 import com.example.dat.vkchat.R;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * Created by DAT on 8/29/2015.
@@ -133,4 +135,5 @@ public class FragmentChat extends Fragment {
             ((FragmentChatItem) fragment).refreshToDetectIncomingMsg();
         }
     }
+
 }

@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.example.dat.vkchat.Fragments.FragmentContacts;
@@ -24,18 +26,20 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by DAT on 8/26/2015.
  */
-public class CustomContactsAdapter extends RecyclerView.Adapter<CustomContactsAdapter.ViewHolder> {
+public class CustomContactsAdapter extends RecyclerView.Adapter<CustomContactsAdapter.ViewHolder> implements Filterable {
 
     private ArrayList<Contact> contacts;
+    private ArrayList<Contact> contactsTempForSearching;
     private LayoutInflater inflater;
     private Context context;
     FragmentContacts fragmentContacts;
 
-    public CustomContactsAdapter(Context context, ArrayList<Contact> listModels) {
+    public CustomContactsAdapter(Context context, ArrayList<Contact> listModels, FragmentContacts fragmentContacts) {
         inflater = LayoutInflater.from(context);
         this.contacts = listModels;
         this.context = context;
         this.fragmentContacts = fragmentContacts;
+        this.contactsTempForSearching = listModels;
     }
 
     @Override
@@ -123,5 +127,40 @@ public class CustomContactsAdapter extends RecyclerView.Adapter<CustomContactsAd
             return fragmentTest;
     }
 
+    @Override
+    public Filter getFilter() {
+        Filter filter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults filterResults = new FilterResults();
+                if (fragmentContacts.isSearchOn()) {
+                    constraint = constraint.toString().toLowerCase();
+                    if (constraint == null || constraint.length() == 0) {
+                        filterResults.values = contactsTempForSearching;
+                        filterResults.count = contactsTempForSearching.size();
+                        fragmentContacts.setSearchOn(false);
 
+                    } else {
+                        ArrayList<Contact> filteredContacts = new ArrayList<Contact>();
+                        for (int i = 0; i < contactsTempForSearching.size(); i++) {
+                            String name = contactsTempForSearching.get(i).getName();
+                            if (name.toLowerCase().contains(constraint.toString())) {
+                                filteredContacts.add(contactsTempForSearching.get(i));
+                            }
+                        }
+                        filterResults.count = filteredContacts.size();
+                        filterResults.values = filteredContacts;
+                    }
+                }
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                contacts = (ArrayList<Contact>) results.values;
+                notifyDataSetChanged();
+            }
+        };
+        return filter;
+    }
 }
