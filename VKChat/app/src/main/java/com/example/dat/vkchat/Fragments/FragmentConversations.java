@@ -47,7 +47,8 @@ public class FragmentConversations extends Fragment {
         List<Fragment> fragments = getChildFragmentManager().getFragments();
         if (fragments != null) {
             for (Fragment fragment : fragments) {
-                fragment.onActivityResult(requestCode, resultCode, data);
+                if (fragment != null)
+                    fragment.onActivityResult(requestCode, resultCode, data);
             }
         }
     }

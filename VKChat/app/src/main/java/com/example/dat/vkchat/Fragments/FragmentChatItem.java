@@ -55,7 +55,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by DAT on 8/31/2015.
@@ -388,10 +391,14 @@ public class FragmentChatItem extends Fragment {
                         String body = joMsg.getString("body");
                         int user_id = joMsg.getInt("user_id");
                         int from_id = joMsg.getInt("from_id");
+                        long unix_date = joMsg.getLong("date");
                         Message message = new Message();
                         message.setUser_id(user_id);
                         message.setFrom_id(from_id);
                         message.setBody(body);
+                        message.setUnix_time(unix_date);
+                        message.setTime_date(unixDateConvert(unix_date));
+
                         try {
                             JSONArray jsonArrayAttachments;
                             if ((jsonArrayAttachments = joMsg.getJSONArray("attachments")) != null) {
@@ -462,6 +469,13 @@ public class FragmentChatItem extends Fragment {
                 super.onProgress(progressType, bytesLoaded, bytesTotal);
             }
         });
+    }
+
+    private String unixDateConvert(long epoch) {
+        String date_time = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new java.util.Date(epoch * 1000));
+        Date date = new Date(epoch * 1000);
+
+        return date_time;
     }
 
     public boolean isRefreshRunner() {

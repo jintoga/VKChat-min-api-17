@@ -1,19 +1,19 @@
 package com.example.dat.vkchat.Adapters;
 
 import android.content.Context;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.example.dat.vkchat.LoginActivity;
 import com.example.dat.vkchat.Model.Attachment;
 import com.example.dat.vkchat.Model.Contact;
@@ -21,14 +21,10 @@ import com.example.dat.vkchat.Model.Message;
 import com.example.dat.vkchat.R;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.vk.sdk.api.VKApi;
-import com.vk.sdk.api.VKApiConst;
-import com.vk.sdk.api.VKError;
-import com.vk.sdk.api.VKParameters;
-import com.vk.sdk.api.VKRequest;
-import com.vk.sdk.api.VKResponse;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -95,6 +91,14 @@ public class CustomChatAdapter extends BaseAdapter {
             if (((LoginActivity) context).getCurrentUser().getUser_id() == getItem(position).getFrom_id()) {
                 Picasso.with(context).load(((LoginActivity) context).getCurrentUser().getAvatar_url()).into(viewHolder.avatar);
                 viewHolder.msg_body.setText(getItem(position).getBody());
+                int dayChecker = checkTodayYesterday(getItem(position).getUnix_time());
+                if (dayChecker == 1) {
+                    viewHolder.date_time.setText("Today " + getTime(getItem(position).getUnix_time()));
+                } else if (dayChecker == 2) {
+                    viewHolder.date_time.setText("Yesterday " + getTime(getItem(position).getUnix_time()));
+                } else {
+                    viewHolder.date_time.setText(getItem(position).getTime_date());
+                }
                 ArrayList<Attachment> attachments = getItem(position).getAttachments();
 
                 if (attachments != null) {
@@ -126,17 +130,31 @@ public class CustomChatAdapter extends BaseAdapter {
                 layoutParamsContainer.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 viewHolder.container.setLayoutParams(layoutParamsContainer);
 
-                LinearLayout.LayoutParams layoutParamsAvatar = (LinearLayout.LayoutParams) viewHolder.avatar.getLayoutParams();
-                layoutParamsAvatar.gravity = Gravity.RIGHT;
-                viewHolder.avatar.setLayoutParams(layoutParamsAvatar);
+                LinearLayout.LayoutParams layoutParamsAvatarContainer = (LinearLayout.LayoutParams) viewHolder.containerAvatar.getLayoutParams();
+                layoutParamsAvatarContainer.gravity = Gravity.RIGHT;
+                viewHolder.containerAvatar.setLayoutParams(layoutParamsAvatarContainer);
 
                 LinearLayout.LayoutParams layoutParamsMsg = (LinearLayout.LayoutParams) viewHolder.contentBody.getLayoutParams();
                 layoutParamsMsg.gravity = Gravity.RIGHT;
                 layoutParamsMsg.rightMargin = 20;
                 viewHolder.contentBody.setLayoutParams(layoutParamsMsg);
+
+                FrameLayout.LayoutParams layoutParamsAvatar = (FrameLayout.LayoutParams) viewHolder.avatar.getLayoutParams();
+                layoutParamsAvatar.gravity = Gravity.RIGHT;
+                viewHolder.avatar.setLayoutParams(layoutParamsAvatar);
+
+
             } else {
                 Picasso.with(context).load(receiver.getAvatar_url()).into(viewHolder.avatar);
                 viewHolder.msg_body.setText(getItem(position).getBody());
+                int dayChecker = checkTodayYesterday(getItem(position).getUnix_time());
+                if (dayChecker == 1) {
+                    viewHolder.date_time.setText("Today " + getTime(getItem(position).getUnix_time()));
+                } else if (dayChecker == 2) {
+                    viewHolder.date_time.setText("Yesterday " + getTime(getItem(position).getUnix_time()));
+                } else {
+                    viewHolder.date_time.setText(getItem(position).getTime_date());
+                }
                 ArrayList<Attachment> attachments = getItem(position).getAttachments();
 
                 if (attachments != null) {
@@ -168,17 +186,53 @@ public class CustomChatAdapter extends BaseAdapter {
                 layoutParamsContainer.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
                 viewHolder.container.setLayoutParams(layoutParamsContainer);
 
-                LinearLayout.LayoutParams layoutParamsAvatar = (LinearLayout.LayoutParams) viewHolder.avatar.getLayoutParams();
-                layoutParamsAvatar.gravity = Gravity.LEFT;
-                viewHolder.avatar.setLayoutParams(layoutParamsAvatar);
+                LinearLayout.LayoutParams layoutParamsAvatarContainer = (LinearLayout.LayoutParams) viewHolder.containerAvatar.getLayoutParams();
+                layoutParamsAvatarContainer.gravity = Gravity.LEFT;
+                viewHolder.containerAvatar.setLayoutParams(layoutParamsAvatarContainer);
 
                 LinearLayout.LayoutParams layoutParamsMsg = (LinearLayout.LayoutParams) viewHolder.contentBody.getLayoutParams();
                 layoutParamsMsg.gravity = Gravity.LEFT;
                 layoutParamsMsg.leftMargin = 20;
                 viewHolder.contentBody.setLayoutParams(layoutParamsMsg);
+
+                FrameLayout.LayoutParams layoutParamsAvatar = (FrameLayout.LayoutParams) viewHolder.avatar.getLayoutParams();
+                layoutParamsAvatar.gravity = Gravity.LEFT;
+                viewHolder.avatar.setLayoutParams(layoutParamsAvatar);
+
             }
         }
         return convertView;
+    }
+
+    private String getTime(long epoch) {
+        String time = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date(epoch * 1000));
+
+        return time;
+    }
+
+    private int checkTodayYesterday(long epoch) {
+        Date date = new Date(epoch * 1000);
+        int day = date.getDate();
+        int month = date.getMonth();
+        int year = date.getYear();
+        Date today = new Date();
+        int cur_day = today.getDate();
+        int cur_month = today.getMonth();
+        int cur_year = today.getYear();
+        if (day == cur_day && month == cur_month && year == cur_year) {
+            return 1;
+        } else if (day + 1 == cur_day && month == cur_month && year == cur_year) {
+            return 2;
+        } else {
+            return 0;
+        }
+    }
+
+
+    public int pxToDp(int px) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        int dp = Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return dp;
     }
 
     private ViewHolder createViewHolder(View view) {
@@ -186,9 +240,11 @@ public class CustomChatAdapter extends BaseAdapter {
         holder.msg_body = (TextView) view.findViewById(R.id.textViewMsg);
         holder.img_body = (ImageView) view.findViewById(R.id.imageViewImgBody);
         holder.avatar = (CircleImageView) view.findViewById(R.id.imageViewAvatar);
+        holder.containerAvatar = (FrameLayout) view.findViewById(R.id.frameLayoutAvatar);
         holder.container = (LinearLayout) view.findViewById(R.id.linearLayoutContainer);
         holder.contentBody = (LinearLayout) view.findViewById(R.id.linearLayoutContentBody);
         holder.progressBarLoadImage = (ProgressBar) view.findViewById(R.id.progressBarLoadImage);
+        holder.date_time = (TextView) view.findViewById(R.id.textViewDateTime);
         return holder;
     }
 
@@ -198,7 +254,9 @@ public class CustomChatAdapter extends BaseAdapter {
         ImageView img_body;
         LinearLayout container;
         LinearLayout contentBody;
+        FrameLayout containerAvatar;
         ProgressBar progressBarLoadImage;
+        TextView date_time;
     }
 
 

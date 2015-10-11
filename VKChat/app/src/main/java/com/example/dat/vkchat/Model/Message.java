@@ -10,6 +10,8 @@ public class Message {
     private int id;
     private int user_id;
     private int from_id;
+    private long unix_time;
+    private String time_date;
     private ArrayList<Attachment> attachments;
 
 
@@ -61,5 +63,21 @@ public class Message {
 
     public void setAttachments(ArrayList<Attachment> attachments) {
         this.attachments = attachments;
+    }
+
+    public long getUnix_time() {
+        return unix_time;
+    }
+
+    public void setUnix_time(long unix_time) {
+        this.unix_time = unix_time;
+    }
+
+    public String getTime_date() {
+        return time_date;
+    }
+
+    public void setTime_date(String time_date) {
+        this.time_date = time_date;
     }
 }

@@ -50,12 +50,31 @@
         </LinearLayout>
 
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imageViewAvatar"
-            android:layout_width="30dp"
+        <FrameLayout
+            android:id="@+id/frameLayoutAvatar"
+            android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:layout_gravity="end"
-            android:src="@drawable/boy" />
+            android:layout_gravity="end">
+
+            <TextView
+                android:id="@+id/textViewDateTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|bottom"
+                android:paddingLeft="35dp"
+                android:paddingRight="35dp"
+                android:text="New Textfsafas"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="10sp" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageViewAvatar"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="end"
+                android:src="@drawable/boy" />
+
+        </FrameLayout>
 
     </LinearLayout>
 
