@@ -52,7 +52,7 @@ public class CustomContactsAdapter extends RecyclerView.Adapter<CustomContactsAd
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         Contact contact = contacts.get(position);
-        if (contact.getAvatar_url() != "") {
+        if (!contact.getAvatar_url().equals("")) {
             Picasso.with(context).load(contact.getAvatar_url())./*centerInside().*/resize(120, 120)/*.transform(new RoundedTransformation(10, 10))*/.into(holder.imageViewContactAvatar);
         } else {
             Picasso.with(context).load(R.drawable.vk_avatar)./*centerInside().*/resize(120, 120)/*.transform(new RoundedTransformation(10, 10))*/.into(holder.imageViewContactAvatar);

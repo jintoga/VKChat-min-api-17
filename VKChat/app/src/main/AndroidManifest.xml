@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.dat.vkchat">
+    package="com.example.dat.vkchat" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -20,7 +20,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <activity android:name="com.vk.sdk.VKOpenAuthActivity" />
         <activity
             android:name="com.vk.sdk.VKServiceActivity"
@@ -28,7 +28,7 @@
             android:theme="@style/VK.Transparent" />
         <activity
             android:name=".LoginActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,7 +36,12 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".Services.MyService"></service>
+        <service android:name=".Services.MyService" />
+
+        <activity
+            android:name=".Services.MainActivity"
+            android:label="@string/title_activity_main" >
+        </activity>
     </application>
 
 </manifest>

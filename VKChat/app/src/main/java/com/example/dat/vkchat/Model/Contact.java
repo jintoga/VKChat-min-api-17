@@ -1,11 +1,14 @@
 package com.example.dat.vkchat.Model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 
 /**
  * Created by DAT on 8/26/2015.
  */
-public class Contact implements Serializable {
+public class Contact implements Serializable, Parcelable {
 
     private int user_id;
     private String name;
@@ -21,6 +24,25 @@ public class Contact implements Serializable {
         this.isOnline = isOnline;
         this.user_id = user_id;
     }
+
+    protected Contact(Parcel in) {
+        user_id = in.readInt();
+        name = in.readString();
+        avatar_url = in.readString();
+        isOnline = in.readInt();
+    }
+
+    public static final Creator<Contact> CREATOR = new Creator<Contact>() {
+        @Override
+        public Contact createFromParcel(Parcel in) {
+            return new Contact(in);
+        }
+
+        @Override
+        public Contact[] newArray(int size) {
+            return new Contact[size];
+        }
+    };
 
     public String getName() {
         return name;
@@ -52,5 +74,18 @@ public class Contact implements Serializable {
 
     public void setUser_id(int user_id) {
         this.user_id = user_id;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(user_id);
+        dest.writeString(name);
+        dest.writeString(avatar_url);
+        dest.writeInt(isOnline);
     }
 }

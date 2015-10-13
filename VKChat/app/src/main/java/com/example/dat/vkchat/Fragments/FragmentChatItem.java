@@ -214,7 +214,7 @@ public class FragmentChatItem extends Fragment {
             public void onRefresh() {
                 if (flag_loading == false) {
                     if (numb_of_receiving_msg < 200)        //max amount of msg-s VK allows is 200
-                        numb_of_receiving_msg = numb_of_receiving_msg + 20;      //increase number of receiving msg-s to 200
+                        numb_of_receiving_msg = numb_of_receiving_msg + 2;      //increase number of receiving msg-s to 200
                     else {                                    //then use offset to get older msg-s
                         numb_of_receiving_msg = 200;          //if numb_of_receiving_msg >=200 => numb_of_receiving_msg = 200 to avoid error invalid parameter
                         scroll_offset = scroll_offset + 2;

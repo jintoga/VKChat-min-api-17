@@ -21,7 +21,9 @@ import android.widget.TextView;
 
 import com.example.dat.vkchat.Fragments.FragmentContacts;
 import com.example.dat.vkchat.Fragments.FragmentConversations;
+import com.example.dat.vkchat.Fragments.LogoutFragment;
 import com.example.dat.vkchat.Model.Contact;
+import com.example.dat.vkchat.Services.MainActivity;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKAccessToken;
@@ -45,7 +47,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
 
     private Contact currentUser;
-    private static final String[] sMyScope = new String[]{
+    public static final String[] sMyScope = new String[]{
             VKScope.FRIENDS,
             VKScope.WALL,
             VKScope.PHOTOS,
@@ -69,7 +71,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         setContentView(R.layout.activity_login);
         getIDs();
         setEvents();
-        showLogin();
+        /*showLogin();*/
     }
 
     private void getIDs() {
@@ -144,12 +146,6 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         fragmentManager.beginTransaction().show(fragmentChat).commit();
     }
 
-    private void showLogin() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, new LoginFragment())
-                .commit();
-    }
 
     private void showLogout() {
         getSupportFragmentManager()
@@ -193,85 +189,34 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
     }
 
-    public static class LoginFragment extends Fragment {
-        public LoginFragment() {
-            super();
-        }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View v = inflater.inflate(R.layout.fragment_login, container, false);
-            v.findViewById(R.id.button_sign_in).setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    VKSdk.login(getActivity(), sMyScope);
-                }
-            });
-            return v;
-        }
+    public static int request_code = 10;
 
-    }
-
-    public static class LogoutFragment extends Fragment {
-        public LogoutFragment() {
-            super();
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View v = inflater.inflate(R.layout.fragment_logout, container, false);
-
-
-            v.findViewById(R.id.button_sign_out).setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    VKSdk.logout();
-                    if (!VKSdk.isLoggedIn()) {
-                        ((LoginActivity) getActivity()).showLogin();
-                        ((LoginActivity) getActivity()).clearUserOldData();
-                    }
-                }
-            });
-            return v;
-        }
-
-
+    public void gotoLoginActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivityForResult(intent, request_code);
     }
 
 
-    private void clearUserOldData() {
+    public void clearUserOldData() {
         imageViewAvatar.setImageResource(R.drawable.boy);
         textViewName.setText("User");
-        if (contacts != null)
+        if (contacts != null) {
             contacts.clear();
+            fragmentContacts.clearContactsList();
+            fragmentChat.clearData();
+        }
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
-            @Override
-            public void onResult(VKAccessToken res) {
-                if (res != null) {
-                    setUserData();
-                    requestContacts();
-                    requestMessagesDialogs();
-                    showLogout();
-                } else {
-                    showLogin();
-                    clearUserOldData();
-                }
-            }
-
-            @Override
-            public void onError(VKError error) {
-                // User didn't pass Authorization
-            }
-        })) {
-            super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == this.request_code && resultCode == RESULT_OK) {
+            Bundle bundle = data.getExtras();
+            contacts = bundle.getParcelableArrayList("data");
+            fragmentContacts.setContacts(contacts);
         }
-
     }
 
     @Override
@@ -286,8 +231,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                 fragmentChat.getFragmentChat().startRefreshInAllFrgaments();
             }
         } else {
-            showLogin();
             clearUserOldData();
+            gotoLoginActivity();
+            //showLogin();
+
         }
 
     }

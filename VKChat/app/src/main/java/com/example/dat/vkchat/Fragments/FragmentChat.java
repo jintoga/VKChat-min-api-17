@@ -1,5 +1,6 @@
 package com.example.dat.vkchat.Fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -23,7 +24,7 @@ import java.util.List;
 public class FragmentChat extends Fragment {
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private static ViewPagerAdapter adapter;
+    private ViewPagerAdapter adapter;
 
 
     Contact receiver = null;
@@ -59,6 +60,7 @@ public class FragmentChat extends Fragment {
             throw new RuntimeException(e);
         }
     }
+
 
     private void getIDs(View view) {
         viewPager = (ViewPager) view.findViewById(R.id.my_viewpager);
@@ -104,8 +106,12 @@ public class FragmentChat extends Fragment {
         bundle.putSerializable("data", receiver);
         FragmentChatItem fci = new FragmentChatItem();
         fci.setArguments(bundle);
+        if (adapter == null) {
+            adapter = getAdapter();
+            viewPager.setAdapter(adapter);
+        }
         adapter.addFrag(fci, receiver);
-        adapter.notifyDataSetChanged();
+        //adapter.notifyDataSetChanged();
         if (adapter.getCount() > 0) {
             tabLayout.setupWithViewPager(viewPager);
         }
@@ -124,16 +130,32 @@ public class FragmentChat extends Fragment {
 
 
     public void stopRefreshInAllFrgaments() {
-        for (Fragment fragment : adapter.getmFragmentList()) {
-            ((FragmentChatItem) fragment).setRefreshRunner(false);
+        if (adapter != null) {
+            for (Fragment fragment : adapter.getmFragmentList()) {
+                ((FragmentChatItem) fragment).setRefreshRunner(false);
+            }
         }
     }
 
     public void startRefreshInAllFrgaments() {
-        for (Fragment fragment : adapter.getmFragmentList()) {
-            ((FragmentChatItem) fragment).setRefreshRunner(true);
-            ((FragmentChatItem) fragment).refreshToDetectIncomingMsg();
+        if (adapter != null) {
+            for (Fragment fragment : adapter.getmFragmentList()) {
+                ((FragmentChatItem) fragment).setRefreshRunner(true);
+                ((FragmentChatItem) fragment).refreshToDetectIncomingMsg();
+            }
         }
     }
+
+    public void clearData() {
+        if (adapter != null) {
+            adapter.clearAll();
+            adapter = null;
+        }
+        if (tabLayout != null) {
+            tabLayout.removeAllTabs();
+            //tabLayout = null;
+        }
+    }
+
 
 }

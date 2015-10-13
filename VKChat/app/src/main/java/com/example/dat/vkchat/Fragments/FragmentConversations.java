@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.dat.vkchat.Adapters.ViewPagerAdapter;
 import com.example.dat.vkchat.Model.Contact;
 import com.example.dat.vkchat.R;
 
@@ -52,4 +53,13 @@ public class FragmentConversations extends Fragment {
             }
         }
     }
+
+    public void clearData() {
+        if (fragmentChat != null) {
+            fragmentChat.clearData();
+            //fragmentChat = null;
+        }
+    }
+
+
 }

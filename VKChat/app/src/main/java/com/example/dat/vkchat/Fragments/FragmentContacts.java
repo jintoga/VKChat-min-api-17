@@ -67,9 +67,12 @@ public class FragmentContacts extends Fragment {
     }
 
     public void clearContactsList() {
-        contacts.clear();
+        if (contacts != null)
+            contacts.clear();
         if (customContactsAdapter != null)
             customContactsAdapter.notifyDataSetChanged();
+        if (editTextSearchContact != null)
+            editTextSearchContact.setText("");
     }
 
     public ArrayList<Contact> getContacts() {

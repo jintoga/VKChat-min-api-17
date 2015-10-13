@@ -2,17 +2,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    tools:context=".LoginActivity">
+    android:orientation="vertical">
 
-    <Button
-        android:id="@+id/button_sign_in"
-        style="?android:attr/buttonStyleSmall"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:text="Login" />
+        android:orientation="vertical">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Authentication is Required!"
+            android:textColor="@android:color/black" />
 
+        <Button
+            android:id="@+id/button_sign_in"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:text="Sign-in" />
+
+    </LinearLayout>
 </FrameLayout>

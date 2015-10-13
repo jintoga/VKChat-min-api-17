@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +48,12 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     public void addFrag(Fragment fragment, Contact contact) {
         mFragmentList.add(fragment);
         contacts.add(contact);
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return PagerAdapter.POSITION_NONE;
     }
 
     @Override
@@ -62,7 +69,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
         tabItemName.setText(contacts.get(position).getName());
         tabItemName.setTextColor(context.getResources().getColor(android.R.color.background_light));
-        if (contacts.get(position).getAvatar_url() != "") {
+        if (!contacts.get(position).getAvatar_url().equals("")) {
             Picasso.with(context).load(contacts.get(position).getAvatar_url()).resize(50, 50).into(tabItemAvatar);
         } else {
             Picasso.with(context).load(R.drawable.vk_avatar).resize(50, 50).into(tabItemAvatar);
@@ -73,4 +80,11 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     public ArrayList<Fragment> getmFragmentList() {
         return mFragmentList;
     }
+
+    public void clearAll() {
+        mFragmentList.clear();
+        contacts.clear();
+        notifyDataSetChanged();
+    }
+
 }
