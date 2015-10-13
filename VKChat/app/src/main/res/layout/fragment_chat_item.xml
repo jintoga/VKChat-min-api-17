@@ -11,16 +11,22 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <ListView
-            android:id="@+id/listViewChat"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayoutListViewChat"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            android:layout_weight="85"
-            android:clickable="false"
-            android:divider="@null"
-            android:stackFromBottom="true"
-            android:transcriptMode="alwaysScroll" />
+            android:layout_weight="85">
+
+            <ListView
+                android:id="@+id/listViewChat"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:clickable="false"
+                android:divider="@null"
+                android:stackFromBottom="true"
+                android:transcriptMode="alwaysScroll" />
+        </android.support.v4.widget.SwipeRefreshLayout>
 
         <android.support.v7.widget.CardView
             android:layout_width="fill_parent"

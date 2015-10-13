@@ -5,16 +5,21 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -81,6 +86,8 @@ public class FragmentChatItem extends Fragment {
     private String attachment_id = "";
     private String attachment_owner_id = "";
 
+    private SwipeRefreshLayout swipeRefreshLayoutListViewChat;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -91,6 +98,8 @@ public class FragmentChatItem extends Fragment {
         setEvents();
         msg_counter = getCurrentMsgNumber();
         refreshRunner = true;
+
+        numb_of_receiving_msg = 10;
         refreshToDetectIncomingMsg();
         return view;
     }
@@ -109,13 +118,59 @@ public class FragmentChatItem extends Fragment {
         textViewFileName = (TextView) view.findViewById(R.id.textViewFileName);
         progressBarUploadAttachment = (ProgressBar) view.findViewById(R.id.progressBarUploadAttchment);
         progressBarUploadAttachment.setVisibility(View.INVISIBLE);
+
+        swipeRefreshLayoutListViewChat = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefreshLayoutListViewChat);
+
     }
 
-    String user_id = "146312781";
+    private boolean flag_loading, isScrollingDown;
 
     private void setEvents() {
         customChatAdapter = new CustomChatAdapter(getActivity(), listMsg, receiver);
         listViewChat.setAdapter(customChatAdapter);
+        listViewChat.setOnTouchListener(new View.OnTouchListener() {
+            float initialY, finalY;
+
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = MotionEventCompat.getActionMasked(event);
+                switch (action) {
+                    case (MotionEvent.ACTION_DOWN):
+                        initialY = event.getY();
+                        if (initialY < finalY) {
+                            Log.d("UP", "Scrolling up: " + scroll_offset);
+                            isScrollingDown = false;
+                        } else if (initialY > finalY) {
+                            Log.d("DOWN", "Scrolling down: " + scroll_offset);
+                            isScrollingDown = true;
+                        }
+                    case (MotionEvent.ACTION_UP):
+                        finalY = event.getY();
+                    default:
+                }
+                return false;
+            }
+        });
+        listViewChat.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if (listIsAtBottom() == true && scroll_offset > 0) {
+                    scroll_offset = scroll_offset - 2;
+                    refreshRunner = false;
+                    customChatAdapter.clear();
+                    customChatAdapter.notifyDataSetChanged();
+                    loadMoreItems();
+                    Log.d("scroll_offset", scroll_offset + "");
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+            }
+        });
+
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,9 +187,12 @@ public class FragmentChatItem extends Fragment {
                     e.printStackTrace();
                 }
                 String msg = cbuf.toString();
+                if (scroll_offset > 0)
+                    scroll_offset = 0;
                 requestSendMsg(msg, String.valueOf(receiver.getUser_id()));
                 editTextMsg.setText("");
                 textViewFileName.setText("No Attachment");
+                textViewFileName.setTextColor(getResources().getColor(android.R.color.black));
                 attachment = "";
                 attachment_url_604 = "";
             }
@@ -146,23 +204,160 @@ public class FragmentChatItem extends Fragment {
                 attachImage();
             }
         });
+
+        swipeRefreshLayoutListViewChat.setColorSchemeColors(getResources().getColor(R.color.primaryDark)
+                , getResources().getColor(R.color.primary)
+                , getResources().getColor(R.color.accent)
+                , getResources().getColor(R.color.ripple));
+        swipeRefreshLayoutListViewChat.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (flag_loading == false) {
+                    if (numb_of_receiving_msg < 200)        //max amount of msg-s VK allows is 200
+                        numb_of_receiving_msg = numb_of_receiving_msg + 20;      //increase number of receiving msg-s to 200
+                    else {                                    //then use offset to get older msg-s
+                        numb_of_receiving_msg = 200;          //if numb_of_receiving_msg >=200 => numb_of_receiving_msg = 200 to avoid error invalid parameter
+                        scroll_offset = scroll_offset + 2;
+
+                    }
+                    Log.d("numb_of_receiving_msg", numb_of_receiving_msg + " offset" + scroll_offset);
+                    refreshRunner = false;
+                    customChatAdapter.clear();
+                    customChatAdapter.notifyDataSetChanged();
+                    loadMoreItems();
+                }
+
+            }
+        });
+    }
+
+    private void loadMoreItems() {
+        VKRequest request = VKApi.messages().myGetMsgHistoryMethod(VKParameters.from(VKApiConst.OFFSET, scroll_offset, VKApiConst.COUNT, numb_of_receiving_msg, VKApiConst.USER_ID, receiver.getUser_id()));
+        request.secure = false;
+        request.useSystemLanguage = false;
+        request.executeWithListener(new VKRequest.VKRequestListener() {
+            @Override
+            public void onComplete(VKResponse response) {
+                super.onComplete(response);
+                //Log.d("Response", response.toString());
+                try {
+                    JSONObject jsonObject = response.json.getJSONObject("response");
+                    //Log.d("jsonObject", jsonObject.toString());
+                    JSONArray jsonArray = jsonObject.getJSONArray("items");
+                    int msg_count = jsonObject.getInt("count");
+                    //Log.d("msg_count", msg_count + "");
+                    listMsg.clear();
+                    //Log.d("jsonArray", jsonArray.toString());
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject joMsg = jsonArray.getJSONObject(i);
+                        //Log.d("joContact", joMsg.toString());
+                        String body = joMsg.getString("body");
+                        int user_id = joMsg.getInt("user_id");
+                        int from_id = joMsg.getInt("from_id");
+                        long unix_date = joMsg.getLong("date");
+                        Message message = new Message();
+                        message.setUser_id(user_id);
+                        message.setFrom_id(from_id);
+                        message.setBody(body);
+                        message.setUnix_time(unix_date);
+                        message.setTime_date(unixDateConvert(unix_date));
+
+                        try {
+                            JSONArray jsonArrayAttachments;
+                            if ((jsonArrayAttachments = joMsg.getJSONArray("attachments")) != null) {
+
+                                ArrayList<Attachment> attachments = new ArrayList<Attachment>();
+                                for (int j = 0; j < jsonArrayAttachments.length(); j++) {
+                                    JSONObject joAttachment = jsonArrayAttachments.getJSONObject(j);
+                                    Attachment attachment = new Attachment();
+                                    attachment.setType(joAttachment.getString("type"));
+                                    switch (attachment.getType()) {
+                                        /*case "audio":
+                                            JSONObject joAudio = joAttachment.getJSONObject("audio");
+                                            attachment.setMusic_url(joAudio.getString("url"));
+                                            break;*/
+                                        case "photo":
+                                            JSONObject joPhoto = joAttachment.getJSONObject("photo");
+                                            attachment.setImage_url(joPhoto.getString("photo_604"));
+                                            attachments.add(attachment);
+                                            break;
+                                        /*case "doc":
+                                            JSONObject joDoc = joAttachment.getJSONObject("doc");
+                                            attachment.setDoc_url(joDoc.getString("url"));
+                                            break;
+                                        case "video":
+                                            JSONObject joVideo = joAttachment.getJSONObject("video");
+                                            attachment.setVideo_img_url(joVideo.getString("photo_130"));
+                                            attachments.add(attachment);
+                                            break;*/
+                                    }
+                                    //TEMP SOLUTION
+                                    //attachments.add(attachment);
+                                }
+                                if (attachments.size() > 0)
+                                    message.setAttachments(attachments);
+                            }
+                        } catch (JSONException e) {
+                            //Log.i("JSON ERROR", "No value for attachments");
+                        }
+
+                        listMsg.add(message);
+                    }
+                    Collections.reverse(listMsg);
+                    customChatAdapter.notifyDataSetChanged();
+                    if (isScrollingDown == true) {
+                        listViewChat.setSelection(customChatAdapter.getCount() - 1);
+                        Log.d("isScrollingDown", String.valueOf(isScrollingDown));
+                    } else {
+                        listViewChat.setSelection(1);
+                        Log.d("isScrollingDown", String.valueOf(isScrollingDown));
+                    }
+                    flag_loading = false;
+                    swipeRefreshLayoutListViewChat.setRefreshing(false);
+                    refreshRunner = true;
+                    refreshToDetectIncomingMsg();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+                super.attemptFailed(request, attemptNumber, totalAttempts);
+            }
+
+            @Override
+            public void onError(VKError error) {
+                super.onError(error);
+                swipeRefreshLayoutListViewChat.setRefreshing(false);
+            }
+
+            @Override
+            public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded, long bytesTotal) {
+                super.onProgress(progressType, bytesLoaded, bytesTotal);
+                flag_loading = true;
+            }
+        });
     }
 
 
     private static int RESULT_LOAD_IMAGE = 502;
+    private boolean waitingForActivityResult = false;
 
     private void attachImage() {
 
         Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
         getParentFragment().startActivityForResult(intent, RESULT_LOAD_IMAGE);
+        waitingForActivityResult = true;
 
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode == RESULT_LOAD_IMAGE && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == Activity.RESULT_OK && data != null && waitingForActivityResult == true) {
             Uri selectedImage = data.getData();
             String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
@@ -180,7 +375,9 @@ public class FragmentChatItem extends Fragment {
 
             File file = new File(picturePath);
             textViewFileName.setText(file.getName());
+            textViewFileName.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
             uploadImage(file);
+            waitingForActivityResult = false;
         }
     }
 
@@ -245,12 +442,12 @@ public class FragmentChatItem extends Fragment {
             @Override
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
-                Log.d("Response", response.toString());
+                //Log.d("Response", response.toString());
                 progressBarLoadChat.setVisibility(View.GONE);
                 try {
                     JSONObject jsonObject = response.json.getJSONObject("response");
                     int msg_count = jsonObject.getInt("count");
-                    Log.d("msg_count", msg_count + "");
+                    //Log.d("msg_count", msg_count + "");
                     count[0] = msg_count;
 
                 } catch (JSONException e) {
@@ -290,14 +487,14 @@ public class FragmentChatItem extends Fragment {
                 try {
                     while (refreshRunner) {
                         Thread.sleep(1000);      //VK Api allows no more than 3 requests per second so lets make 2 requests per second for safety
-                        Log.d("DoINBackGround", "On doInBackground...");
+                        //Log.d("DoINBackGround", "On doInBackground...");
                         responseUpdateChat();
                     }
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                Log.d("DoINBackGround", "On doInBackground...");
+                //Log.d("DoINBackGround", "On doInBackground...");
                 responseUpdateChat();
                 return null;
             }
@@ -327,7 +524,7 @@ public class FragmentChatItem extends Fragment {
             @Override
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
-                Log.d("Response", response.toString());
+                //Log.d("Response", response.toString());
                 refreshToDetectIncomingMsg();
             }
 
@@ -367,22 +564,25 @@ public class FragmentChatItem extends Fragment {
         }
     }
 
+    private int scroll_offset = 0;
+    private int numb_of_receiving_msg;
+
     private void responseUpdateChat() {
-        Log.d("Receiver", receiver.getName() + " id:" + receiver.getUser_id());
-        VKRequest request = VKApi.messages().myGetMsgHistoryMethod(VKParameters.from(VKApiConst.COUNT, "10", VKApiConst.USER_ID, receiver.getUser_id()));
+        //Log.d("Receiver", receiver.getName() + " id:" + receiver.getUser_id());
+        VKRequest request = VKApi.messages().myGetMsgHistoryMethod(VKParameters.from(VKApiConst.OFFSET, scroll_offset, VKApiConst.COUNT, numb_of_receiving_msg, VKApiConst.USER_ID, receiver.getUser_id()));
         request.secure = false;
         request.useSystemLanguage = false;
         request.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
-                Log.d("Response", response.toString());
+                //Log.d("Response", response.toString());
                 try {
                     JSONObject jsonObject = response.json.getJSONObject("response");
                     //Log.d("jsonObject", jsonObject.toString());
                     JSONArray jsonArray = jsonObject.getJSONArray("items");
                     int msg_count = jsonObject.getInt("count");
-                    Log.d("msg_count", msg_count + "");
+                    //Log.d("msg_count", msg_count + "");
                     listMsg.clear();
                     //Log.d("jsonArray", jsonArray.toString());
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -442,8 +642,9 @@ public class FragmentChatItem extends Fragment {
                         listMsg.add(message);
                     }
                     Collections.reverse(listMsg);
-                    if (msg_count != msg_counter) {
+                    if (msg_count != msg_counter) {     //if there's new msg then notifyDataSetChanged
                         customChatAdapter.notifyDataSetChanged();
+                        listViewChat.setSelection(customChatAdapter.getCount() - 1);
                         msg_counter = msg_count;
 
                     }
@@ -485,4 +686,16 @@ public class FragmentChatItem extends Fragment {
     public void setRefreshRunner(boolean refreshRunner) {
         this.refreshRunner = refreshRunner;
     }
+
+    private boolean listIsAtTop() {
+        if (listViewChat.getChildCount() == 0)
+            return true;
+        return listViewChat.getChildAt(0).getTop() == 0;
+    }
+
+    private boolean listIsAtBottom() {
+
+        return customChatAdapter.listIsAtBottom(listViewChat.getLastVisiblePosition());
+    }
+
 }

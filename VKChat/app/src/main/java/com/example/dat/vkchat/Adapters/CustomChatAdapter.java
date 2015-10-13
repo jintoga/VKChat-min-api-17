@@ -60,6 +60,11 @@ public class CustomChatAdapter extends BaseAdapter {
             return null;
     }
 
+    public boolean listIsAtBottom(int position) {
+        // can check if close or exactly at the end
+        return position == data.size() - 1;
+    }
+
     @Override
     public boolean isEnabled(int position) {
         return false;
@@ -68,6 +73,10 @@ public class CustomChatAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         return position;
+    }
+
+    public void clear() {
+        data.clear();
     }
 
     @Override
@@ -145,7 +154,10 @@ public class CustomChatAdapter extends BaseAdapter {
 
 
             } else {
-                Picasso.with(context).load(receiver.getAvatar_url()).into(viewHolder.avatar);
+                if (!receiver.getAvatar_url().equals(""))
+                    Picasso.with(context).load(receiver.getAvatar_url()).into(viewHolder.avatar);
+                else
+                    viewHolder.avatar.setImageResource(R.drawable.vk_avatar);
                 viewHolder.msg_body.setText(getItem(position).getBody());
                 int dayChecker = checkTodayYesterday(getItem(position).getUnix_time());
                 if (dayChecker == 1) {
