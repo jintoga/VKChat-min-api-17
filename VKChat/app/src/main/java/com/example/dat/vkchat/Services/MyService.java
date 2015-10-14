@@ -46,7 +46,7 @@ public class MyService extends Service {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(MyService.this, "Service is running", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MyService.this, "Service is running", Toast.LENGTH_SHORT).show();
                     Bundle bundle = intent.getExtras();
                     Contact receiver = (Contact) bundle.getSerializable("data");
                     responseUpdateChat(receiver);
