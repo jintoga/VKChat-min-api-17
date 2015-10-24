@@ -25,6 +25,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.dat.vkchat.Adapters.CustomChatAdapter;
 import com.example.dat.vkchat.LoginActivity;
@@ -516,6 +517,7 @@ public class FragmentChatItem extends Fragment {
         if (!attachment_url_604.equals("")) {
             attachment = "photo" + attachment_owner_id + "_" + attachment_id;
             request.addExtraParameters(VKParameters.from(VKApiConst.ATTACHMENT, attachment));
+            //Toast.makeText(getContext(), "With Attachment Sent", Toast.LENGTH_SHORT).show();
         }
 
         request.secure = false;
