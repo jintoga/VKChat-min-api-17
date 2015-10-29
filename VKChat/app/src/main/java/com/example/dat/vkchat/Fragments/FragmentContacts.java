@@ -2,6 +2,7 @@ package com.example.dat.vkchat.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -16,6 +17,12 @@ import com.example.dat.vkchat.Model.Contact;
 import com.example.dat.vkchat.R;
 
 import java.util.ArrayList;
+
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInUpAnimator;
+import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.animators.adapters.ScaleInAnimationAdapter;
 
 public class FragmentContacts extends Fragment {
 
@@ -82,6 +89,10 @@ public class FragmentContacts extends Fragment {
     public void setContacts(ArrayList<Contact> contacts) {
         this.contacts = contacts;
         customContactsAdapter = new CustomContactsAdapter(getActivity(), contacts, this);
+
+        DefaultItemAnimator defaultItemAnimator = new DefaultItemAnimator();
+        defaultItemAnimator.setAddDuration(500);
+        recyclerViewContacts.setItemAnimator(defaultItemAnimator);
         recyclerViewContacts.setAdapter(customContactsAdapter);
         customContactsAdapter.notifyDataSetChanged();
     }

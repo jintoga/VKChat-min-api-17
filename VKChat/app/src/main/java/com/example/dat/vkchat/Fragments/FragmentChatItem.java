@@ -33,6 +33,7 @@ import com.example.dat.vkchat.Model.Attachment;
 import com.example.dat.vkchat.Model.Contact;
 import com.example.dat.vkchat.Model.Message;
 import com.example.dat.vkchat.R;
+import com.nhaarman.listviewanimations.appearance.simple.SwingBottomInAnimationAdapter;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKError;
@@ -128,7 +129,14 @@ public class FragmentChatItem extends Fragment {
 
     private void setEvents() {
         customChatAdapter = new CustomChatAdapter(getActivity(), listMsg, receiver);
-        listViewChat.setAdapter(customChatAdapter);
+        SwingBottomInAnimationAdapter swingBottomInAnimationAdapter = new SwingBottomInAnimationAdapter(customChatAdapter);
+        swingBottomInAnimationAdapter.setAbsListView(listViewChat);
+        assert swingBottomInAnimationAdapter.getViewAnimator() != null;
+        swingBottomInAnimationAdapter.getViewAnimator().setInitialDelayMillis(600);
+
+
+        listViewChat.setAdapter(swingBottomInAnimationAdapter);
+
         listViewChat.setOnTouchListener(new View.OnTouchListener() {
             float initialY, finalY;
 

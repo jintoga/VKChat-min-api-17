@@ -104,7 +104,7 @@ public class CustomContactsAdapter extends RecyclerView.Adapter<CustomContactsAd
     }
 
 
-    public static class ViewHolder extends RecyclerView.ViewHolder /*implements View.OnClickListener*/ {
+    static class ViewHolder extends RecyclerView.ViewHolder /*implements View.OnClickListener*/ {
         TextView textViewContactName, textViewStatus;
         CircleImageView imageViewContactAvatar;
         FloatingActionButton floatingActionButtonChat;
