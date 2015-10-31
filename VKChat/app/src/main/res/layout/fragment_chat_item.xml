@@ -66,13 +66,22 @@
                         android:textColor="@android:color/black"
                         android:textSize="10dp" />
 
-                    <ProgressBar
+                    <!--<ProgressBar
                         android:id="@+id/progressBarUploadAttchment"
                         style="?android:attr/progressBarStyleSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginTop="5dp" />
+                        android:layout_marginTop="5dp" />-->
+                    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                        android:id="@+id/progressBarUploadAttchment"
+                        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="6dp"
+                        android:indeterminate="true"
+                        app:mpb_progressStyle="horizontal" />
                 </FrameLayout>
 
                 <EditText

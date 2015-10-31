@@ -184,26 +184,30 @@ public class FragmentChatItem extends Fragment {
             @Override
             public void onClick(View v) {
 
-
-                CharBuffer cbuf = null;
-                try {
-                    Charset charset = Charset.forName("UTF-8");
-                    CharsetDecoder decoder = charset.newDecoder();
-                    CharsetEncoder encoder = charset.newEncoder();
-                    ByteBuffer bbuf = encoder.encode(CharBuffer.wrap(editTextMsg.getText() + ""));
-                    cbuf = decoder.decode(bbuf);
-                } catch (CharacterCodingException e) {
-                    e.printStackTrace();
+                if (!isUploadingAttachment) {
+                    CharBuffer cbuf = null;
+                    try {
+                        Charset charset = Charset.forName("UTF-8");
+                        CharsetDecoder decoder = charset.newDecoder();
+                        CharsetEncoder encoder = charset.newEncoder();
+                        ByteBuffer bbuf = encoder.encode(CharBuffer.wrap(editTextMsg.getText() + ""));
+                        cbuf = decoder.decode(bbuf);
+                    } catch (CharacterCodingException e) {
+                        e.printStackTrace();
+                    }
+                    String msg = cbuf.toString();
+                    if (scroll_offset > 0)
+                        scroll_offset = 0;
+                    requestSendMsg(msg, String.valueOf(receiver.getUser_id()));
+                    editTextMsg.setText("");
+                    textViewFileName.setText("No Attachment");
+                    textViewFileName.setTextColor(getResources().getColor(android.R.color.black));
+                    attachment = "";
+                    attachment_url_604 = "";
+                } else {
+                    Toast.makeText(getContext(), "Please wait for Attachment to be uploaded!", Toast.LENGTH_SHORT).show();
                 }
-                String msg = cbuf.toString();
-                if (scroll_offset > 0)
-                    scroll_offset = 0;
-                requestSendMsg(msg, String.valueOf(receiver.getUser_id()));
-                editTextMsg.setText("");
-                textViewFileName.setText("No Attachment");
-                textViewFileName.setTextColor(getResources().getColor(android.R.color.black));
-                attachment = "";
-                attachment_url_604 = "";
+
             }
         });
 
@@ -390,12 +394,16 @@ public class FragmentChatItem extends Fragment {
         }
     }
 
+    private boolean isUploadingAttachment = false;
 
     private void uploadImage(File file) {
+        textViewFileName.setVisibility(View.INVISIBLE);
+        progressBarUploadAttachment.setVisibility(View.VISIBLE);
 
         VKRequest request = VKApi.uploadMessagesPhotoRequest(file);
         request.secure = false;
         request.useSystemLanguage = false;
+        isUploadingAttachment = true;
         request.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
@@ -403,22 +411,35 @@ public class FragmentChatItem extends Fragment {
                 Log.d("Response", response.toString());
                 parseJson(response.json);
                 progressBarUploadAttachment.setVisibility(View.INVISIBLE);
+                textViewFileName.setVisibility(View.VISIBLE);
+                isUploadingAttachment = false;
             }
 
             @Override
             public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
                 super.attemptFailed(request, attemptNumber, totalAttempts);
+                progressBarUploadAttachment.setVisibility(View.INVISIBLE);
+                textViewFileName.setText("Upload Error");
+                textViewFileName.setTextColor(getResources().getColor(android.R.color.black));
+                textViewFileName.setVisibility(View.VISIBLE);
+                isUploadingAttachment = false;
             }
 
             @Override
             public void onError(VKError error) {
                 super.onError(error);
+                progressBarUploadAttachment.setVisibility(View.INVISIBLE);
+                textViewFileName.setText("Upload Error");
+                textViewFileName.setTextColor(getResources().getColor(android.R.color.black));
+                textViewFileName.setVisibility(View.VISIBLE);
+                isUploadingAttachment = false;
             }
 
             @Override
             public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded, long bytesTotal) {
                 super.onProgress(progressType, bytesLoaded, bytesTotal);
                 progressBarUploadAttachment.setVisibility(View.VISIBLE);
+                isUploadingAttachment = true;
             }
         });
 
