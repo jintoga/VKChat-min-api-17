@@ -78,7 +78,7 @@ public class FragmentChatItem extends Fragment {
     private ListView listViewChat;
     private Contact receiver = null;
     private ProgressBar progressBarLoadChat;
-    private ImageButton imageButtonAttach;
+    private ImageButton imageButtonAttach, imageButtonCancelAttachment;
     private TextView textViewFileName;
     private ProgressBar progressBarUploadAttachment;
     private boolean refreshRunner = false;
@@ -120,6 +120,8 @@ public class FragmentChatItem extends Fragment {
         textViewFileName = (TextView) view.findViewById(R.id.textViewFileName);
         progressBarUploadAttachment = (ProgressBar) view.findViewById(R.id.progressBarUploadAttchment);
         progressBarUploadAttachment.setVisibility(View.INVISIBLE);
+        imageButtonCancelAttachment = (ImageButton) view.findViewById(R.id.buttonCancelAttachment);
+        imageButtonCancelAttachment.setVisibility(View.GONE);
 
         swipeRefreshLayoutListViewChat = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefreshLayoutListViewChat);
 
@@ -202,6 +204,7 @@ public class FragmentChatItem extends Fragment {
                     editTextMsg.setText("");
                     textViewFileName.setText("No Attachment");
                     textViewFileName.setTextColor(getResources().getColor(android.R.color.black));
+                    imageButtonCancelAttachment.setVisibility(View.GONE);
                     attachment = "";
                     attachment_url_604 = "";
                 } else {
@@ -240,6 +243,24 @@ public class FragmentChatItem extends Fragment {
                     loadMoreItems();
                 }
 
+            }
+        });
+
+        imageButtonCancelAttachment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (requestUploadAttachment != null) {
+                    requestUploadAttachment.cancel();
+                    Log.d("Cancel", "Uploading canceled");
+                }
+                isUploadingAttachment = false;
+                textViewFileName.setText("No Attachment");
+                textViewFileName.setTextColor(getResources().getColor(android.R.color.black));
+                attachment = "";
+                attachment_url_604 = "";
+                textViewFileName.setVisibility(View.VISIBLE);
+                progressBarUploadAttachment.setVisibility(View.INVISIBLE);
+                imageButtonCancelAttachment.setVisibility(View.GONE);
             }
         });
     }
@@ -395,22 +416,25 @@ public class FragmentChatItem extends Fragment {
     }
 
     private boolean isUploadingAttachment = false;
+    VKRequest requestUploadAttachment;
 
     private void uploadImage(File file) {
         textViewFileName.setVisibility(View.INVISIBLE);
         progressBarUploadAttachment.setVisibility(View.VISIBLE);
+        imageButtonCancelAttachment.setVisibility(View.VISIBLE);
 
-        VKRequest request = VKApi.uploadMessagesPhotoRequest(file);
-        request.secure = false;
-        request.useSystemLanguage = false;
+        requestUploadAttachment = VKApi.uploadMessagesPhotoRequest(file);
+        requestUploadAttachment.secure = false;
+        requestUploadAttachment.useSystemLanguage = false;
         isUploadingAttachment = true;
-        request.executeWithListener(new VKRequest.VKRequestListener() {
+        requestUploadAttachment.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
                 Log.d("Response", response.toString());
                 parseJson(response.json);
                 progressBarUploadAttachment.setVisibility(View.INVISIBLE);
+
                 textViewFileName.setVisibility(View.VISIBLE);
                 isUploadingAttachment = false;
             }
@@ -419,7 +443,9 @@ public class FragmentChatItem extends Fragment {
             public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
                 super.attemptFailed(request, attemptNumber, totalAttempts);
                 progressBarUploadAttachment.setVisibility(View.INVISIBLE);
-                textViewFileName.setText("Upload Error");
+                // textViewFileName.setText("Upload Error");
+                Toast.makeText(getContext(), "Upload Error", Toast.LENGTH_SHORT).show();
+                textViewFileName.setText("No Attachment");
                 textViewFileName.setTextColor(getResources().getColor(android.R.color.black));
                 textViewFileName.setVisibility(View.VISIBLE);
                 isUploadingAttachment = false;
@@ -429,7 +455,9 @@ public class FragmentChatItem extends Fragment {
             public void onError(VKError error) {
                 super.onError(error);
                 progressBarUploadAttachment.setVisibility(View.INVISIBLE);
-                textViewFileName.setText("Upload Error");
+                //textViewFileName.setText("Upload Error");
+                Toast.makeText(getContext(), "Upload Error", Toast.LENGTH_SHORT).show();
+                textViewFileName.setText("No Attachment");
                 textViewFileName.setTextColor(getResources().getColor(android.R.color.black));
                 textViewFileName.setVisibility(View.VISIBLE);
                 isUploadingAttachment = false;

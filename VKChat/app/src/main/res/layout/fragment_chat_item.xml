@@ -41,7 +41,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:layout_weight="20"
+                    android:layout_weight="25"
                     android:orientation="vertical">
 
                     <ImageButton
@@ -53,18 +53,52 @@
                         android:background="@null"
                         android:src="@drawable/attach" />
 
-                    <TextView
-                        android:id="@+id/textViewFileName"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="5dp"
-                        android:ellipsize="end"
                         android:gravity="center"
-                        android:lines="2"
-                        android:text="No Attachment"
-                        android:textColor="@android:color/black"
-                        android:textSize="10dp" />
+                        android:orientation="horizontal">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:id="@+id/textViewFileName"
+                                android:layout_width="80dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="5dp"
+                                android:ellipsize="end"
+                                android:gravity="center"
+                                android:lines="2"
+                                android:text="No Attachment"
+                                android:textColor="@android:color/black"
+                                android:textSize="10dp" />
+
+                            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                                android:id="@+id/progressBarUploadAttchment"
+                                style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="6dp"
+                                android:indeterminate="true"
+                                app:mpb_progressStyle="horizontal" />
+                        </FrameLayout>
+
+                        <ImageButton
+                            android:id="@+id/buttonCancelAttachment"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:layout_marginTop="5dp"
+                            android:background="@null"
+                            android:src="@drawable/ic_clear_black_18dp" />
+
+                    </LinearLayout>
 
                     <!--<ProgressBar
                         android:id="@+id/progressBarUploadAttchment"
@@ -73,15 +107,6 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="5dp" />-->
-                    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-                        android:id="@+id/progressBarUploadAttchment"
-                        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="6dp"
-                        android:indeterminate="true"
-                        app:mpb_progressStyle="horizontal" />
                 </FrameLayout>
 
                 <EditText
@@ -89,7 +114,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_weight="65"
+                    android:layout_weight="60"
                     android:lines="1"
                     android:textColor="@android:color/black" />
 

@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Created by DAT on 8/29/2015.
  */
-public class FragmentChat extends Fragment {
+public class FragmentChat extends Fragment implements ViewPagerAdapter.IRemoveContactFromChat {
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private ViewPagerAdapter adapter;
@@ -95,8 +95,12 @@ public class FragmentChat extends Fragment {
     }
 
     public void setupTabLayout() {
-        for (int i = 0; i < tabLayout.getTabCount(); i++) {
-            tabLayout.getTabAt(i).setCustomView(adapter.getTabView(i));
+        if (tabLayout.getTabCount() <= 0) {
+            tabLayout.removeAllTabs();
+        } else {
+            for (int i = 0; i < tabLayout.getTabCount(); i++) {
+                tabLayout.getTabAt(i).setCustomView(adapter.getTabView(i));
+            }
         }
     }
 
@@ -120,10 +124,16 @@ public class FragmentChat extends Fragment {
         setupTabLayout();
     }
 
+    /*public void removeFragmentFromViewPager(int position) {
+        adapter.removeFrag(position);
+        *//*viewPager.setCurrentItem(adapter.getCount() - 1);
+        setupTabLayout();*//*
+    }*/
+
 
     public ViewPagerAdapter getAdapter() {
         if (adapter == null)
-            return new ViewPagerAdapter(getFragmentManager(), getActivity());
+            return new ViewPagerAdapter(getFragmentManager(), getActivity(), this);
         else
             return adapter;
     }
@@ -157,5 +167,15 @@ public class FragmentChat extends Fragment {
         }
     }
 
-
+    @Override
+    public void removeFromChat(int position) {
+        if (tabLayout.getTabCount() <= 1) {
+            clearData();
+            setupTabLayout();
+        } else {
+            tabLayout.removeTabAt(position);
+            if (adapter.getCount() > 0)
+                viewPager.setCurrentItem(adapter.getCount() - 1);
+        }
+    }
 }
