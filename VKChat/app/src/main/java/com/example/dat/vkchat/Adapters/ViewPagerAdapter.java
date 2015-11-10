@@ -67,11 +67,16 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getItemPosition(Object object) {
-
+       /* int index = mFragmentList.indexOf(object);
+        if (index == -1)
+            return POSITION_NONE;
+        else
+            return index;*/
         return POSITION_NONE;
     }
 
-    @Override
+
+    /*@Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         super.destroyItem(container, position, object);
         if (position <= getCount()) {
@@ -80,16 +85,15 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             trans.remove((Fragment) object);
             trans.commit();
         }
-    }
+    }*/
 
     @Override
     public CharSequence getPageTitle(int position) {
         return contacts.get(position).getName();
     }
 
-
     public View getTabView(final int position) {
-        final View view = LayoutInflater.from(activity).inflate(R.layout.custom_item_tab, null);
+        View view = LayoutInflater.from(activity).inflate(R.layout.custom_item_tab, null);
         TextView tabItemName = (TextView) view.findViewById(R.id.textViewTabItemName);
         CircleImageView tabItemAvatar = (CircleImageView) view.findViewById(R.id.imageViewTabItemAvatar);
 
@@ -105,7 +109,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         imageButtonRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mFragmentList.size() == 1) {
+               /* if (mFragmentList.size() == 1) {
                     Toast.makeText(activity, contacts.get(0).getName(), Toast.LENGTH_SHORT).show();
                     removeFrag(0);
                     iRemoveContactFromChat.removeFromChat(0);
@@ -113,8 +117,10 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                     Toast.makeText(activity, contacts.get(position).getName(), Toast.LENGTH_SHORT).show();
                     removeFrag(position);
                     iRemoveContactFromChat.removeFromChat(position);
-                }
-
+                }*/
+                Toast.makeText(activity, contacts.get(position).getName(), Toast.LENGTH_SHORT).show();
+                removeFrag(position);
+                iRemoveContactFromChat.removeFromChat(position);
             }
         });
         return view;

@@ -95,12 +95,9 @@ public class FragmentChat extends Fragment implements ViewPagerAdapter.IRemoveCo
     }
 
     public void setupTabLayout() {
-        if (tabLayout.getTabCount() <= 0) {
-            tabLayout.removeAllTabs();
-        } else {
-            for (int i = 0; i < tabLayout.getTabCount(); i++) {
-                tabLayout.getTabAt(i).setCustomView(adapter.getTabView(i));
-            }
+
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            tabLayout.getTabAt(i).setCustomView(adapter.getTabView(i));
         }
     }
 
@@ -173,9 +170,16 @@ public class FragmentChat extends Fragment implements ViewPagerAdapter.IRemoveCo
             clearData();
             setupTabLayout();
         } else {
-            tabLayout.removeTabAt(position);
-            if (adapter.getCount() > 0)
-                viewPager.setCurrentItem(adapter.getCount() - 1);
+
+            if (adapter.getCount() > 0) {
+                tabLayout.setupWithViewPager(viewPager);
+            }
+            int selPos = tabLayout.getSelectedTabPosition();
+            viewPager.setCurrentItem(adapter.getCount() - 1);
+            setupTabLayout();
+            viewPager.setCurrentItem(adapter.getCount() - 1);
         }
+
+
     }
 }
